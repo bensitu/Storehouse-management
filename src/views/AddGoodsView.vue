@@ -87,6 +87,9 @@ export default {
 
   },
   methods: {
+    getUnit() {
+      console.log("get unit");
+    },
     onSubmit(formName) {
       if (this.form.attendance_date != null || this.form.attendance_date !== "" || this.form.attendance_date !== undefined) {
         this.form.record_id = this.employee_info.employee_id + (this.form.attendance_date).replace(/-/g, '') + ((this.tempId < 10) ? ("0" + this.tempId) : this.tempId);

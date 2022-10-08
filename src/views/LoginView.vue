@@ -5,14 +5,16 @@
                 <h3>倉庫管理システム</h3>
             </div>
             <div class="formdata">
-                <el-form ref="form" :model="form" :rules="rules">
+                <el-form ref="loginForm" :model="loginForm" :rules="loginRules">
                     <el-form-item prop="username">
-                        <el-input type="text" v-model.trim="form.username" clearable placeholder="ユーザーID"
-                            auto-complete="off"></el-input>
+
+                        <el-input type="text" v-model.trim="loginForm.username" clearable placeholder="ユーザーID"
+                            auto-complete="off" prefix-icon="el-icon-user-solid"></el-input>
                     </el-form-item>
                     <el-form-item prop="password">
-                        <el-input type="password" v-model="form.password" clearable placeholder="パスワード" show-password
-                            auto-complete="off"></el-input>
+
+                        <el-input type="password" v-model="loginForm.password" clearable placeholder="パスワード"
+                            show-password auto-complete="off" prefix-icon="el-icon-lock"></el-input>
                     </el-form-item>
                 </el-form>
             </div>
@@ -35,28 +37,59 @@
 export default {
     name: 'LoginView',
     data() {
+        const validateUsername = (rule, value, callback) => {
+            if (!validUsername(value)) {
+                callback(new Error('Please enter the correct user name'))
+            } else {
+                callback()
+            }
+        }
+        const validatePassword = (rule, value, callback) => {
+            if (value.length < 6) {
+                callback(new Error('The password can not be less than 6 digits'))
+            } else {
+                callback()
+            }
+        }
         return {
-            form: {
+            loginForm: {
                 password: '',
                 username: '',
             },
             checked: false,
-            rules: {
+            loginRules: {
                 username: [
                     { required: true, message: 'ユーザーIDを入力してください', trigger: 'blur' },
-                    { max: 11, message: "11文字を超えて入力することはできません", trigger: "blur" },
+                    { max: 11, message: "11文字を超えて入力することはできません、11文字を入力してください", trigger: "blur" },
                 ],
                 password: [
                     { required: true, message: "パスワードを入力してください", trigger: "blur" },
-                    { max: 50, message: "50文字を超えて入力することはできません", trigger: "blur" },
+                    { max: 50, message: "50文字を超えて入力することはできません、50文字を入力してください", trigger: "blur" },
                 ],
             },
         };
+    },
+    watch: {
+        $route: {
+            handler: function (route) {
+                const query = route.query
+                if (query) {
+                    this.redirect = query.redirect
+                    this.otherQuery = this.getOtherQuery(query)
+                }
+            },
+            immediate: true
+        }
     },
     mounted() {
         if (localStorage.getItem("news")) {
             this.form = JSON.parse(localStorage.getItem("news"))
             this.checked = true
+        }
+        if (this.loginForm.username === '') {
+            this.$refs.username.focus()
+        } else if (this.loginForm.password === '') {
+            this.$refs.password.focus()
         }
     },
     methods: {
@@ -137,7 +170,6 @@ export default {
 .logindata {
     width: 350px;
     /* transform: translate(-50%); */
-    /* margin-left: 50%; */
     border-radius: 15px;
     background-clip: padding-box;
     margin: 90px auto;
@@ -162,6 +194,7 @@ export default {
     cursor: pointer;
     color: #606266;
 }
+
 
 /*ui*/
 /* /deep/ .el-form-item__label {

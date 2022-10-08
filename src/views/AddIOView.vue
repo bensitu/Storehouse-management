@@ -83,7 +83,7 @@ export default {
 
                 ],
                 io_num: [
-                    { min: 0, max: 999999999, type: 'number', required: true, message: '0以上数字を入力してください', trigger: 'blur' },
+                    { min: 0, max: 11, type: 'number', required: true, message: '0以上数字を入力してください', trigger: 'blur' },
                     { required: true, message: '数字を入力してください', trigger: 'blur' }
                 ],
 

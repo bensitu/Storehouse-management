@@ -130,6 +130,9 @@ export default {
 
   },
   methods: {
+    getData() {
+
+    },
     searchInfo() {
       let param = "?attendance_date=" + this.pagination.search_date;
       if (this.pagination.search_date !== null) {
@@ -172,6 +175,11 @@ export default {
         this.$message.info("キャンセルしました");
       })
 
+    },
+    handleAddIO(index, row) {
+      this.$router.push({
+        name: 'ioinfo',
+      })
     },
     handleBack() {
       this.$router.push({

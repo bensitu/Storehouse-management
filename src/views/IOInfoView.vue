@@ -32,7 +32,7 @@
                                             unlink-panels range-separator="〜" start-placeholder="開始日"
                                             end-placeholder="終了日" :picker-options="pickerOptions">
                                         </el-date-picker>
-                                        <el-select class="mb-10 mr-15" v-model="ddd" clearable placeholder="请选择">
+                                        <el-select class="mb-10 mr-15" v-model="ddd" clearable placeholder="選択する">
                                             <el-option v-for="item in options" :key="item.value" :label="item.label"
                                                 :value="item.value">
                                             </el-option>
