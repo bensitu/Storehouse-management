@@ -28,13 +28,14 @@
                             <div class="functionNav mt-10 mb-20">
                                 <div class="searchBox floatLeft">
                                     <div class="">
-                                        <el-date-picker class="mb-10 mr-15" v-model="sss" type="daterange" align="right"
-                                            unlink-panels range-separator="〜" start-placeholder="開始日"
+                                        <el-date-picker class="mb-10 mr-15" v-model="searchForm.date" type="daterange"
+                                            align="right" unlink-panels range-separator="〜" start-placeholder="開始日"
                                             end-placeholder="終了日" :picker-options="pickerOptions">
                                         </el-date-picker>
-                                        <el-select class="mb-10 mr-15" v-model="ddd" clearable placeholder="選択する">
-                                            <el-option v-for="item in options" :key="item.value" :label="item.label"
-                                                :value="item.value">
+                                        <el-select class="mb-10 mr-15" v-model="searchForm.stockType" clearable
+                                            placeholder="入出庫タイプ選択">
+                                            <el-option v-for="item in ioTypeOptions" :key="item.value"
+                                                :label="item.label" :value="item.value">
                                             </el-option>
                                         </el-select>
                                         <el-button class="mb-10" type="primary" icon="el-icon-search"
@@ -53,19 +54,13 @@
                                         class="el-icon-circle-plus-outline ml-5"></i></el-button>
                             </div>
 
-
                             <el-table :data="dataList" stripe border show-summary>
                                 <el-table-column prop="record_id" align="center" label="記録番号"></el-table-column>
-                                <el-table-column prop="io_type" align="center" label="入出庫タイプ">
-                                </el-table-column>
-                                <el-table-column prop="io_num" align="center" label="入出庫数量">
-                                </el-table-column>
-                                <el-table-column prop="io_datetime" align="center" label="入出庫日時">
-                                </el-table-column>
-                                <el-table-column prop="io_person" align="center" label="入出庫者">
-                                </el-table-column>
-                                <el-table-column prop="remarks" align="center" label="備考">
-                                </el-table-column>
+                                <el-table-column prop="io_type" align="center" label="入出庫タイプ"></el-table-column>
+                                <el-table-column prop="io_num" align="center" label="入出庫数量"></el-table-column>
+                                <el-table-column prop="io_datetime" align="center" label="入出庫日時"></el-table-column>
+                                <el-table-column prop="io_person" align="center" label="入出庫者"></el-table-column>
+                                <el-table-column prop="remarks" align="center" label="備考"></el-table-column>
                             </el-table>
                             <div class="pagination-container">
                                 <div class="block mt-5">
@@ -99,6 +94,11 @@ export default {
     },
     data() {
         return {
+            searchForm: {
+                stockType: '',
+                date: '',
+            },
+            ioTypeOptions: [],
             dataList: [],
             io_type: '',
             io_num: '',

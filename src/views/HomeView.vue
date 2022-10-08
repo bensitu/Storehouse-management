@@ -8,9 +8,8 @@
               <Header></Header>
             </el-header>
             <el-main class="homemain">
-
               <div class="mt-10 mb-30">
-                <div class=" floatLeft">
+                <div class="floatLeft">
                   <h2>在庫情報一覧</h2>
                 </div>
                 <div class=" floatRight">
@@ -24,8 +23,9 @@
                     <el-input v-model="searchForm.name"></el-input>
                   </el-form-item>
                   <el-form-item label="在庫状況" class="mr-20">
-                    <el-select v-model="ddd" clearable placeholder="選択する">
-                      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+                    <el-select v-model="searchForm.stockType" clearable placeholder="在庫状況選択">
+                      <el-option v-for=" item in stockTypeOptions" :key="item.value" :label="item.label"
+                        :value="item.value">
                       </el-option>
                     </el-select>
                   </el-form-item>
@@ -56,17 +56,11 @@
                 </el-table-column>
                 <el-table-column prop="id" align="center" label="在庫ID"></el-table-column>
                 <el-table-column prop="name" align="center" label="在庫名称"></el-table-column>
-                <el-table-column prop="io_type" align="center" label="単位">
-                </el-table-column>
-                <el-table-column prop="io_num" align="center" label="在庫数量">
-                </el-table-column>
-
-                <el-table-column prop="io_person" align="center" label="更新者">
-                </el-table-column>
-                <el-table-column prop="io_datetime" align="center" label="更新日時">
-                </el-table-column>
-                <el-table-column prop="remarks" align="center" label="備考">
-                </el-table-column>
+                <el-table-column prop="io_type" align="center" label="単位"></el-table-column>
+                <el-table-column prop="io_num" align="center" label="在庫数量"></el-table-column>
+                <el-table-column prop="io_person" align="center" label="更新者"></el-table-column>
+                <el-table-column prop="io_datetime" align="center" label="更新日時"></el-table-column>
+                <el-table-column prop="remarks" align="center" label="備考"></el-table-column>
                 <el-table-column align="center" label="操作">
                   <template v-slot="scope">
                     <el-button size="mini" type="warning" @click="handleEdit(scope.$index, scope.row)">編集<i
@@ -115,7 +109,37 @@ export default {
   data() {
     return {
       searchForm: {
-
+        name: '',
+        stockType: '',
+        date: '',
+      },
+      stockTypeOptions: [],
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一週間',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近一ヶ月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
+          }
+        }, {
+          text: '最近三ヶ月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
       },
       dataList: [],
       pagination: {

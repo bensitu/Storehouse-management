@@ -25,9 +25,9 @@
                                         <el-input v-model="ioForm.stock_num"></el-input>
                                     </el-form-item>
                                     <el-form-item label="入出庫タイプ" prop="io_type">
-                                        <el-select v-model="value" clearable placeholder="選択する">
-                                            <el-option v-for="item in options" :key="item.value" :label="item.label"
-                                                :value="item.value">
+                                        <el-select v-model="ioForm.io_type" clearable placeholder="入出庫タイプ選択">
+                                            <el-option v-for="item in ioTypeOptions" :key="item.value"
+                                                :label="item.label" :value="item.value">
                                             </el-option>
                                         </el-select>
                                     </el-form-item>
@@ -87,7 +87,8 @@ export default {
                     { required: true, message: '数字を入力してください', trigger: 'blur' }
                 ],
 
-            }
+            },
+            ioTypeOptions: [],
         }
     },
     mounted() {

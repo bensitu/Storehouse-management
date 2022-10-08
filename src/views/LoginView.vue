@@ -7,12 +7,10 @@
             <div class="formdata">
                 <el-form ref="loginForm" :model="loginForm" :rules="loginRules">
                     <el-form-item prop="username">
-
                         <el-input type="text" v-model.trim="loginForm.username" clearable placeholder="ユーザーID"
                             auto-complete="off" prefix-icon="el-icon-user-solid"></el-input>
                     </el-form-item>
                     <el-form-item prop="password">
-
                         <el-input type="password" v-model="loginForm.password" clearable placeholder="パスワード"
                             show-password auto-complete="off" prefix-icon="el-icon-lock"></el-input>
                     </el-form-item>
@@ -69,27 +67,10 @@ export default {
             },
         };
     },
-    watch: {
-        $route: {
-            handler: function (route) {
-                const query = route.query
-                if (query) {
-                    this.redirect = query.redirect
-                    this.otherQuery = this.getOtherQuery(query)
-                }
-            },
-            immediate: true
-        }
-    },
     mounted() {
         if (localStorage.getItem("news")) {
             this.form = JSON.parse(localStorage.getItem("news"))
             this.checked = true
-        }
-        if (this.loginForm.username === '') {
-            this.$refs.username.focus()
-        } else if (this.loginForm.password === '') {
-            this.$refs.password.focus()
         }
     },
     methods: {

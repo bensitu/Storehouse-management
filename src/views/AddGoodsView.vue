@@ -18,8 +18,8 @@
                     <el-input v-model="goodsForm.name"></el-input>
                   </el-form-item>
                   <el-form-item label="単位" prop="unit_name">
-                    <el-select v-model="value" clearable placeholder="選択する">
-                      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+                    <el-select v-model="goodsForm.unit" clearable placeholder="単位選択">
+                      <el-option v-for="item in unitOptions" :key="item.value" :label="item.label" :value="item.value">
                       </el-option>
                     </el-select>
                   </el-form-item>
@@ -79,8 +79,8 @@ export default {
         unit_name: [
           { required: true, message: '単位を選択してください', trigger: 'blur' }
         ],
-
-      }
+      },
+      unitOptions: [],
     }
   },
   mounted() {
