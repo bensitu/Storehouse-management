@@ -1,7 +1,7 @@
 <template>
   <div class="homebody">
     <el-row :gutter="5">
-      <el-col :span="20" :offset="2" :xs="8" :sm="12" :md="16" :lg="20" :xl="22">
+      <el-col :span="20" :offset="2" :xs="20" :sm="20" :md="20" :lg="20" :xl="20">
         <div class="grid-content">
           <el-container class="container-shadow">
             <el-header class="homeheader">
@@ -12,10 +12,10 @@
                 <div class="floatLeft">
                   <h2>在庫情報一覧</h2>
                 </div>
-                <div class=" floatRight">
+                <div class="floatRight">
                   <el-button class="ml-5" type="info" @click="handleBack()">ログアウト</el-button>
                 </div>
-                <div class="cleanBoth"></div>
+                <div class="clearBoth"></div>
               </div>
               <div class="mb-20">
                 <el-form :inline="true" :model="searchForm" ref="searchForm">
@@ -36,7 +36,7 @@
                     </el-date-picker>
                   </el-form-item>
 
-                  <el-button class="" type="primary" icon="el-icon-search" @click="searchInfo()">
+                  <el-button class="" type="primary" icon="el-icon-search" @click="searchStockInfo()">
                     検索
                   </el-button>
                   <div class="floatRight mb-20">
@@ -51,9 +51,8 @@
 
               <div class="clearBoth"></div>
 
-              <el-table :data="dataList" stripe border show-summary>
-                <el-table-column type="selection" width="55">
-                </el-table-column>
+              <el-table :data="stockDataList" stripe border show-summary>
+                <el-table-column type="selection" align="center" width="40"></el-table-column>
                 <el-table-column prop="id" align="center" label="在庫ID"></el-table-column>
                 <el-table-column prop="name" align="center" label="在庫名称"></el-table-column>
                 <el-table-column prop="io_type" align="center" label="単位"></el-table-column>
@@ -141,12 +140,11 @@ export default {
           }
         }]
       },
-      dataList: [],
+      stockDataList: [],
       pagination: {
         currentPage: 1,
         pageSize: 10,
         total: 0,
-        search_date: ''
       }
     }
   },
@@ -154,29 +152,40 @@ export default {
 
   },
   methods: {
-    getData() {
-
+    async getStockData() {
+      await this.$axios.get("http://localhost:8090/stocks/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
+        this.pagination.pageSize = res.data.data.size;
+        this.pagination.currentPage = res.data.data.current;
+        this.pagination.total = res.data.data.total;
+        this.stockDataList = res.data.data.records;
+      })
     },
-    searchInfo() {
-      let param = "?attendance_date=" + this.pagination.search_date;
-      if (this.pagination.search_date !== null) {
-        this.$axios.get("http://localhost:8090/attendances/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + param).then((res) => {
+    searchStockInfo() {
+      let date = "date=" + this.searchForm.date;
+      if (this.searchForm.date == '' && this.searchForm.name == '' && this.searchForm.stockType == '') {
+        return;
+      }
+      if (this.searchForm.date !== null) {
+        this.$axios.get("http://localhost:8090/stocks/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + "?" + date).then((res) => {
           this.pagination.pageSize = res.data.data.size;
           this.pagination.currentPage = res.data.data.current;
           this.pagination.total = res.data.data.total;
-          this.dataList = res.data.data.records;
+          this.stockDataList = res.data.data.records;
         }).catch(err => console.log(err));
       } else {
-        this.getAll();
+        this.getStockData();
       }
     },
     handleCurrentChange(currentPage) {
       this.pagination.currentPage = currentPage;
-      this.getAll();
+      this.getStockData();
     },
     handleEdit(index, row) {
       this.$router.push({
-        name: 'Updaterecord',
+        name: 'addgoods',
+        params: {
+          id: row.id
+        }
       })
     },
     handleCreate() {
@@ -185,18 +194,21 @@ export default {
       })
     },
     handleDelete(index, row) {
-      this.$confirm("削除は確認しましたか", "メッセージ", { type: "info" }).then(() => {
-        this.$axios.delete("http://localhost:8090/attendances/delete/" + row.record_id).then((res) => {
+      this.$confirm("削除は確認しましたか", "確認メッセージ", { type: "warning", confirmButtonText: '確認', cancelButtonText: 'キャンセル', center: true }).then(() => {
+        this.$axios.delete("http://localhost:8090/stocks/delete/" + row.id).then((res) => {
           if (res.data.flag) {
             this.$message.success("削除しました");
           } else {
             this.$message.error("削除できません");
           }
         }).finally(() => {
-          this.getAll();
+          this.getStockData();
         })
       }).catch(() => {
-        this.$message.info("キャンセルしました");
+        this.$message({
+          type: 'info',
+          message: 'キャンセルしました'
+        });
       })
 
     },
@@ -230,7 +242,7 @@ export default {
 }
 
 .homebody {
-  background-image: url("../assets/img/bg3.jpg");
+  background-image: url("../assets/img/bg4.jpg");
   background-position: center;
   height: 100%;
   width: 100%;

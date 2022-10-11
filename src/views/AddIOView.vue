@@ -1,7 +1,7 @@
 <template>
     <div class="ioinfobody">
         <el-row :gutter="5">
-            <el-col :span="20" :offset="2" :xs="8" :sm="12" :md="16" :lg="20" :xl="22">
+            <el-col :span="20" :offset="2" :xs="20" :sm="20" :md="20" :lg="20" :xl="20">
                 <div class="grid-content">
                     <el-container class="container-shadow">
                         <el-header class="infoheader">
@@ -10,19 +10,19 @@
                         <el-main class="ioinfomain">
                             <div class="formContent">
                                 <h2 class="h2title mb-30">入出庫情報登録</h2>
-                                <el-form :model="ioForm" :rules="rules" ref="ioForm" label-width="120px" class="">
+                                <el-form :model="ioForm" :rules="ioRules" ref="ioForm" label-width="120px" class="">
                                     <el-form-item label="在庫ID" prop="id">
-                                        <el-input v-model="ioForm.id"></el-input>
+                                        <el-input v-model="ioForm.id" readonly class="ioreadonly" style="border: 0;">
+                                        </el-input>
                                     </el-form-item>
                                     <el-form-item label="在庫名称" prop="name">
-                                        <el-input v-model="ioForm.name"></el-input>
+                                        <el-input v-model="ioForm.name" readonly class="ioreadonly"></el-input>
                                     </el-form-item>
-
                                     <el-form-item label="単位" prop="unit_name">
-                                        <el-input v-model="ioForm.unit_name"></el-input>
+                                        <el-input v-model="ioForm.unit_name" readonly class="ioreadonly"></el-input>
                                     </el-form-item>
                                     <el-form-item label="在庫数量" prop="stock_num">
-                                        <el-input v-model="ioForm.stock_num"></el-input>
+                                        <el-input v-model="ioForm.stock_num" readonly class="ioreadonly"></el-input>
                                     </el-form-item>
                                     <el-form-item label="入出庫タイプ" prop="io_type">
                                         <el-select v-model="ioForm.io_type" clearable placeholder="入出庫タイプ選択">
@@ -77,7 +77,7 @@ export default {
                 io_num: '',
                 remarks: ''
             },
-            rules: {
+            ioRules: {
                 io_type: [
                     { type: 'array', required: true, message: 'タイプを選択してください', trigger: 'blur' }
 
@@ -89,6 +89,9 @@ export default {
 
             },
             ioTypeOptions: [],
+            employee_info: {
+                employee_id: '',
+            }
         }
     },
     mounted() {
@@ -197,5 +200,10 @@ export default {
 .formContent {
     width: 50%;
     margin: 0 auto;
+}
+
+:deep(.ioreadonly) .el-input__inner {
+    border: 0 !important;
+    outline: none;
 }
 </style>

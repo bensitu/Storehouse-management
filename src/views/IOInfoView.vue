@@ -1,7 +1,7 @@
 <template>
     <div class="ioinfobody">
         <el-row :gutter="5">
-            <el-col :span="20" :offset="2" :xs="8" :sm="12" :md="16" :lg="20" :xl="22">
+            <el-col :span="20" :offset="2" :xs="20" :sm="20" :md="20" :lg="20" :xl="20">
                 <div class="grid-content">
                     <el-container class="container-shadow">
                         <el-header class="infoheader">
@@ -15,17 +15,30 @@
                                 <div class="floatRight">
                                     <el-button class="ml-5" type="info" @click="handleBack()">戻る</el-button>
                                 </div>
-                                <div class="cleanBoth"></div>
+                                <div class="clearBoth"></div>
                             </div>
-                            <div class="">
-                                <el-descriptions style="font-size: 16px;">
-                                    <el-descriptions-item label="在庫名称">kooriookami</el-descriptions-item>
-                                    <el-descriptions-item label="単位">個</el-descriptions-item>
-                                    <el-descriptions-item label="在庫数量">99999</el-descriptions-item>
+                            <div class="mb-20">
+                                <el-descriptions style="font-size: 16px;" :column="3">
+                                    <el-descriptions-item label="在庫名称">{{stock.name}}</el-descriptions-item>
+                                    <el-descriptions-item label="単位">{{stock.unit}}</el-descriptions-item>
+                                    <el-descriptions-item label="在庫数量">{{stock.num}}</el-descriptions-item>
                                 </el-descriptions>
+                                <!-- <div class="mb-20">
+                                    <div class="floatLeft" style="width: 33%;">
+                                        <p><span class="mr-5">在庫名称：</span><span class="mr-5">ssssssss</span></p>
+                                    </div>
+                                    <div class="floatLeft" style="width: 33%;">
+                                        <p><span class="mr-5">単位：</span><span class="mr-5">個</span>
+                                        </p>
+                                    </div>
+                                    <div class="floatLeft" style="width: 33%;">
+                                        <p><span class="mr-5">在庫数量：</span><span class="mr-5">99999</span></p>
+                                    </div>
+                                    <div class="clearBoth"></div>
+                                </div> -->
                             </div>
 
-                            <div class="functionNav mt-10 mb-20">
+                            <div class="functionNav mb-20">
                                 <div class="searchBox floatLeft">
                                     <div class="">
                                         <el-date-picker class="mb-10 mr-15" v-model="searchForm.date" type="daterange"
@@ -39,7 +52,7 @@
                                             </el-option>
                                         </el-select>
                                         <el-button class="mb-10" type="primary" icon="el-icon-search"
-                                            @click="searchInfo()">
+                                            @click="searchIOInfo()">
                                             検索
                                         </el-button>
                                     </div>
@@ -47,14 +60,14 @@
                                 <!-- <div class="goBack floatRight">
                                     <el-button class="ml-5" type="info" @click="handleBack()">戻る</el-button>
                                 </div> -->
-                                <div class="cleanBoth"></div>
+                                <div class="clearBoth"></div>
                             </div>
                             <div class="newRecord mb-20">
                                 <el-button class="" type="success" @click="handleCreate()">追加<i
                                         class="el-icon-circle-plus-outline ml-5"></i></el-button>
                             </div>
 
-                            <el-table :data="dataList" stripe border show-summary>
+                            <el-table :data="ioDataList" stripe border show-summary>
                                 <el-table-column prop="record_id" align="center" label="記録番号"></el-table-column>
                                 <el-table-column prop="io_type" align="center" label="入出庫タイプ"></el-table-column>
                                 <el-table-column prop="io_num" align="center" label="入出庫数量"></el-table-column>
@@ -94,14 +107,19 @@ export default {
     },
     data() {
         return {
+            stock: {
+                name: '',
+                unit: '',
+                num: 0,
+            },
             searchForm: {
                 stockType: '',
                 date: '',
             },
             ioTypeOptions: [],
-            dataList: [],
+            ioDataList: [],
             io_type: '',
-            io_num: '',
+            io_num: 0,
             io_datetime: '',
             io_person: '',
             remarks: '',
@@ -144,35 +162,36 @@ export default {
 
     },
     methods: {
+        async getIOData() {
+            await this.$axios.get("http://localhost:8090/stocks/io/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
+                this.pagination.pageSize = res.data.data.size;
+                this.pagination.currentPage = res.data.data.current;
+                this.pagination.total = res.data.data.total;
+                this.stockDataList = res.data.data.records;
+            }).catch(err => console.log(err));
+        },
+        searchIOInfo() {
+            let date = "date=" + this.searchForm.date;
+            let stockType = "type=" + this.searchForm.stockType;
+            if (this.searchForm.date == '' && this.searchForm.stockType == '') {
+                return;
+            }
+            if (this.searchForm.date !== null) {
+                this.$axios.get("http://localhost:8090/stocks/io/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + "?" + date + "&" + stockType).then((res) => {
+                    this.pagination.pageSize = res.data.data.size;
+                    this.pagination.currentPage = res.data.data.current;
+                    this.pagination.total = res.data.data.total;
+                    this.stockDataList = res.data.data.records;
+                }).catch(err => console.log(err));
+            } else {
+                this.getIOData();
+            }
+        },
         handleCurrentChange(currentPage) {
             this.pagination.currentPage = currentPage;
-            this.getAll();
+            this.getIOData();
         },
-        handleEdit(index, row) {
-            this.$router.push({
-                name: 'Updaterecord',
-                params: {
-                    record_id: row.record_id,
-                    employee_id: this.employee_info.employee_id,
-                }
-            })
-        },
-        handleDelete(index, row) {
-            this.$confirm("削除は確認しましたか", "メッセージ", { type: "info" }).then(() => {
-                this.$axios.delete("http://localhost:8090/attendances/delete/" + row.record_id).then((res) => {
-                    if (res.data.flag) {
-                        this.$message.success("削除しました");
-                    } else {
-                        this.$message.error("削除できません");
-                    }
-                }).finally(() => {
-                    this.getAll();
-                })
-            }).catch(() => {
-                this.$message.info("キャンセルしました");
-            })
 
-        },
         handleCreate() {
             this.$router.push({
                 name: 'addio',
