@@ -60,31 +60,38 @@ export default {
         }
     },
     methods: {
-        login(form) {
-            this.$refs[form].validate((valid) => {
+        login(loginForm) {
+            this.$refs.loginForm.validate((valid) => {
                 if (valid) {
-                    login(this.form)
-                        .then((res) => {
-                            if (res.code === 200) {
-                                setToken(res.data.token);
+                    // login(this.loginForm)
+                    this.$axios
+                        .post('/api/login', {
+                            employee_id: this.loginForm.employee_id,
+                            password: this.loginForm.password
+                        })
+                        .then(res => {
+                            if (res.data.code === 200) {
                                 localStorage.setItem("USERNAME", res.data.username);
                                 this.$message({
-                                    message: "登录成功啦",
+                                    message: "ログインしました",
                                     type: "success",
                                     showClose: true,
                                 });
-                                this.$router.replace("/");
-                            } else {
+                                this.$router.push({
+                                    name: 'home',
+                                })
+                            } else if (res.data.code === 401 || res.data.code === 400) {
                                 this.$message({
-                                    message: "账户名或密码错误",
+                                    message: res.data.message,
                                     type: "error",
                                     showClose: true,
                                 });
                             }
                         })
                         .catch((err) => {
+                            console.log(err);
                             this.$message({
-                                message: "账户名或密码错误",
+                                message: "ユーザー名またはパスワードが間違っている",
                                 type: "error",
                                 showClose: true,
                             });

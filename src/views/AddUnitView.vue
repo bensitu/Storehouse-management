@@ -92,7 +92,7 @@ export default {
     },
     methods: {
         async getUnit() {
-            await this.$axios.get("http://localhost:8090/units").then((res) => {
+            await this.$axios.get("/api/units").then((res) => {
                 this.unitOptions = res.data.data.name;
             }).catch(err => console.log(err));
         },
@@ -119,7 +119,7 @@ export default {
                 this.unitForm.del_flg = 0;
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        this.$axios.post("http://localhost:8090/units", this.form).then((res) => {
+                        this.$axios.post("/api/units", this.form).then((res) => {
                             if (res.data.flag) {
                                 this.$message.success("登録完了しました");
                                 this.$router.push({

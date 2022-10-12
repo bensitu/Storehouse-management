@@ -163,7 +163,7 @@ export default {
     },
     methods: {
         async getIOData() {
-            await this.$axios.get("http://localhost:8090/stocks/io/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
+            await this.$axios.get("/api/stocks/io/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
                 this.pagination.pageSize = res.data.data.size;
                 this.pagination.currentPage = res.data.data.current;
                 this.pagination.total = res.data.data.total;
@@ -171,13 +171,22 @@ export default {
             }).catch(err => console.log(err));
         },
         searchIOInfo() {
+            let params = {
+                date: this.searchForm.date,
+                type: this.searchForm.stockType
+            }
             let date = "date=" + this.searchForm.date;
             let stockType = "type=" + this.searchForm.stockType;
             if (this.searchForm.date == '' && this.searchForm.stockType == '') {
                 return;
             }
             if (this.searchForm.date !== null) {
-                this.$axios.get("http://localhost:8090/stocks/io/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + "?" + date + "&" + stockType).then((res) => {
+                // this.$axios({
+                //     method: 'GET',
+                //     url: '/api/stocks/io/search/',
+                //     params: params,
+                // }).then()
+                this.$axios.get("/api/stocks/io/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + "?" + date + "&" + stockType).then((res) => {
                     this.pagination.pageSize = res.data.data.size;
                     this.pagination.currentPage = res.data.data.current;
                     this.pagination.total = res.data.data.total;

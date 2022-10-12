@@ -153,7 +153,7 @@ export default {
   },
   methods: {
     async getStockData() {
-      await this.$axios.get("http://localhost:8090/stocks/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
+      await this.$axios.get("/api/stocks/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
         this.pagination.pageSize = res.data.data.size;
         this.pagination.currentPage = res.data.data.current;
         this.pagination.total = res.data.data.total;
@@ -166,7 +166,7 @@ export default {
         return;
       }
       if (this.searchForm.date !== null) {
-        this.$axios.get("http://localhost:8090/stocks/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + "?" + date).then((res) => {
+        this.$axios.get("/api/stocks/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + "?" + date).then((res) => {
           this.pagination.pageSize = res.data.data.size;
           this.pagination.currentPage = res.data.data.current;
           this.pagination.total = res.data.data.total;
@@ -195,7 +195,7 @@ export default {
     },
     handleDelete(index, row) {
       this.$confirm("削除は確認しましたか", "確認メッセージ", { type: "warning", confirmButtonText: '確認', cancelButtonText: 'キャンセル', center: true }).then(() => {
-        this.$axios.delete("http://localhost:8090/stocks/delete/" + row.id).then((res) => {
+        this.$axios.delete("/api/stocks/delete/" + row.id).then((res) => {
           if (res.data.flag) {
             this.$message.success("削除しました");
           } else {
