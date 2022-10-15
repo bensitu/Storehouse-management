@@ -8,6 +8,10 @@ body {
     height: 100%;
 }
 
+el-footer {
+    padding: 0 !important;
+}
+
 .mr-5 {
     margin-right: 5px !important;
 }

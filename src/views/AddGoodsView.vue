@@ -1,13 +1,13 @@
 <template>
-  <div class="ioinfobody">
+  <div class="layout">
     <el-row :gutter="5">
       <el-col :span="20" :offset="2" :xs="20" :sm="20" :md="20" :lg="20" :xl="20">
         <div class="grid-content">
           <el-container class="container-shadow">
-            <el-header class="infoheader">
+            <el-header class="header">
               <Header></Header>
             </el-header>
-            <el-main class="ioinfomain">
+            <el-main class="main">
               <div class="floatRight">
                 <el-button class="ml-5" type="success" @click="handleAddUnit()">単位追加<i
                     class="el-icon-circle-plus-outline ml-5"></i></el-button>
@@ -24,7 +24,8 @@
                   </el-form-item>
                   <el-form-item label="単位" prop="unit_name">
                     <el-select v-model="goodsForm.unit" clearable placeholder="単位選択">
-                      <el-option v-for="item in unitOptions" :key="item.value" :label="item.label" :value="item.value">
+                      <el-option v-for="item in unitOptions" :key="item.unit_id" :label="item.name"
+                        :value="item.unit_id">
                       </el-option>
                     </el-select>
                   </el-form-item>
@@ -40,7 +41,7 @@
               </div>
               <div class="clearBoth"></div>
             </el-main>
-            <el-footer class="infofooter">
+            <el-footer>
               <Footer></Footer>
             </el-footer>
           </el-container>
@@ -96,12 +97,12 @@ export default {
     }
   },
   mounted() {
-
+    this.getUnit()
   },
   methods: {
     async getUnit() {
-      await this.$axios.get("/api/units").then((res) => {
-        this.unitOptions = res.data.data.name;
+      await this.$axios.get("/api1/units").then((res) => {
+        this.unitOptions = res.data.data.map((item, index) => { return Object.assign({}, { 'unit_id': item.unitId, 'name': item.name }) })
       }).catch(err => console.log(err));
     },
     onSubmit(formName) {
@@ -114,7 +115,7 @@ export default {
         this.goodsForm.del_flg = 0;
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.$axios.post("/api/stocks", this.form).then((res) => {
+            this.$axios.post("/api1/stocks", this.form).then((res) => {
               if (res.data.flag) {
                 this.$message.success("登録完了しました");
                 this.$router.push({
@@ -177,7 +178,7 @@ export default {
   min-height: 36px;
 }
 
-.ioinfobody {
+.layout {
   background-image: url("../assets/img/bg3.jpg");
   background-position: center;
   height: 100%;
@@ -189,17 +190,16 @@ export default {
 .container-shadow {
   box-shadow:
     -5px 5px 20px -4px #cac6c6, 5px 5px 20px -4px #cac6c6;
-
 }
 
-.infoheader {
+.header {
   background-clip: padding-box;
   padding: 10px 30px;
   background: #fff;
   border: 1px solid #eaeaea;
 }
 
-.ioinfomain {
+.main {
   background-clip: padding-box;
   padding: 25px 30px;
   background: #fff;
@@ -207,13 +207,8 @@ export default {
 
 }
 
-.infofooter {
-  background-clip: padding-box;
-  padding: 20px 30px;
-  text-align: center;
-  background: #fff;
-  color: #909399;
-  border: 1px solid #eaeaea;
+.el-footer {
+  padding: 0;
 }
 
 .h2title {

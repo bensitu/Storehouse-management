@@ -1,18 +1,18 @@
 <template>
-    <div class="ioinfobody">
+    <div class="layout">
         <el-row :gutter="5">
             <el-col :span="20" :offset="2" :xs="20" :sm="20" :md="20" :lg="20" :xl="20">
                 <div class="grid-content">
                     <el-container class="container-shadow">
-                        <el-header class="infoheader">
+                        <el-header class="header">
                             <Header></Header>
                         </el-header>
-                        <el-main class="ioinfomain">
+                        <el-main class="main">
                             <div class="formContent">
                                 <h2 class="h2title mb-30">入出庫情報登録</h2>
                                 <el-form :model="ioForm" :rules="ioRules" ref="ioForm" label-width="120px" class="">
                                     <el-form-item label="在庫ID" prop="id">
-                                        <el-input v-model="ioForm.id" readonly class="ioreadonly" style="border: 0;">
+                                        <el-input v-model="ioForm.id" readonly class="ioreadonly">
                                         </el-input>
                                     </el-form-item>
                                     <el-form-item label="在庫名称" prop="name">
@@ -26,8 +26,8 @@
                                     </el-form-item>
                                     <el-form-item label="入出庫タイプ" prop="io_type">
                                         <el-select v-model="ioForm.io_type" clearable placeholder="入出庫タイプ選択">
-                                            <el-option v-for="item in ioTypeOptions" :key="item.value"
-                                                :label="item.label" :value="item.value">
+                                            <el-option v-for="item in ioTypeOptions" :key="item.unit_id"
+                                                :label="item.name" :value="item.unit_id">
                                             </el-option>
                                         </el-select>
                                     </el-form-item>
@@ -45,7 +45,7 @@
                                 </el-form>
                             </div>
                         </el-main>
-                        <el-footer class="infofooter">
+                        <el-footer>
                             <Footer></Footer>
                         </el-footer>
                     </el-container>
@@ -75,7 +75,8 @@ export default {
                 stock_num: '',
                 io_type: '',
                 io_num: '',
-                remarks: ''
+                remarks: '',
+                del_flg: 0,
             },
             ioRules: {
                 io_type: [
@@ -95,29 +96,31 @@ export default {
         }
     },
     mounted() {
-
+        this.getStockType();
     },
     methods: {
+        async getStockType() {
+            await this.$axios.get("/api1/codes").then((res) => {
+                this.ioTypeOptions = res.data.data.map((item, index) => { return Object.assign({}, { 'unit_id': item.codeId, 'name': item.name }) })
+                console.log(this.ioTypeOptions);
+            })
+        },
         onSubmit(formName) {
-            if (this.form.attendance_date != null || this.form.attendance_date !== "" || this.form.attendance_date !== undefined) {
-                this.form.record_id = this.employee_info.employee_id + (this.form.attendance_date).replace(/-/g, '') + ((this.tempId < 10) ? ("0" + this.tempId) : this.tempId);
+            if (this.ioForm.attendance_date != null || this.ioForm.attendance_date !== "" || this.ioForm.attendance_date !== undefined) {
+                this.ioForm.record_id = this.employee_info.employee_id + (this.form.attendance_date).replace(/-/g, '') + ((this.tempId < 10) ? ("0" + this.tempId) : this.tempId);
                 this.tempId++;
-                this.form.create_user_id = this.employee_info.employee_id;
-                this.form.update_user_id = this.employee_info.employee_id;
-                this.form.create_date = new Date();
-                this.form.update_date = new Date();
-                this.form.rec_del_flg = 0;
-                this.form.flow_status_id = 0;
+                this.ioForm.create_user_id = this.employee_info.employee_id;
+                this.ioForm.update_user_id = this.employee_info.employee_id;
+                this.ioForm.create_date = new Date();
+                this.ioForm.update_date = new Date();
+                this.ioForm.del_flg = 0;
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        this.$axios.post("/api/attendances", this.form).then((res) => {
+                        this.$axios.post("/api1/stocks/io/add", this.ioForm).then((res) => {
                             if (res.data.flag) {
                                 this.$message.success("登録完了しました");
                                 this.$router.push({
                                     name: 'home',
-                                    params: {
-                                        employee_id: this.employee_info.employee_id,
-                                    }
                                 })
                             } else {
                                 this.$message.error("エラー、登録できません");
@@ -154,7 +157,7 @@ export default {
     min-height: 36px;
 }
 
-.ioinfobody {
+.layout {
     background-image: url("../assets/img/bg2.jpg");
     background-position: center;
     height: 100%;
@@ -169,14 +172,14 @@ export default {
 
 }
 
-.infoheader {
+.header {
     background-clip: padding-box;
     padding: 10px 30px;
     background: #fff;
     border: 1px solid #eaeaea;
 }
 
-.ioinfomain {
+.main {
     background-clip: padding-box;
     padding: 25px 30px;
     background: #fff;
@@ -184,13 +187,8 @@ export default {
 
 }
 
-.infofooter {
-    background-clip: padding-box;
-    padding: 20px 30px;
-    text-align: center;
-    background: #fff;
-    color: #909399;
-    border: 1px solid #eaeaea;
+.el-footer {
+    padding: 0;
 }
 
 .h2title {

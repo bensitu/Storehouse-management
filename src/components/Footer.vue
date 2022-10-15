@@ -1,26 +1,26 @@
 <template>
+  <div class="footer">
+    <p>Copyright &copy; 2022 northsea.co.jp, Inc. All Rights Reserved.</p>
+  </div>
 
-  <p>Copyright (c) 2022 xxxxxx.com, Inc. All Rights Reserved.</p>
 
 </template>
   
 <script>
 export default {
   name: 'Footer',
-  props: {
-
-  }
 }
 </script>
   
   <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.el-col {
-  border-radius: 4px;
-}
-
-.grid-content {
-  border-radius: 4px;
-  min-height: 36px;
+.footer {
+  line-height: 20px;
+  background-clip: padding-box;
+  padding: 20px 30px;
+  text-align: center;
+  background: #fff;
+  color: #909399;
+  border: 1px solid #eaeaea;
 }
 </style>

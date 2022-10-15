@@ -1,13 +1,13 @@
 <template>
-    <div class="ioinfobody">
+    <div class="layout">
         <el-row :gutter="5">
             <el-col :span="20" :offset="2" :xs="20" :sm="20" :md="20" :lg="20" :xl="20">
                 <div class="grid-content">
                     <el-container class="container-shadow">
-                        <el-header class="unitheader">
+                        <el-header class="header">
                             <Header></Header>
                         </el-header>
-                        <el-main class="unitmain">
+                        <el-main class="main">
                             <div class="formContent">
                                 <h2 class="h2title mb-30">単位登録</h2>
 
@@ -16,7 +16,6 @@
                                     <el-form-item label="単位名称" prop="name">
                                         <el-input v-model="unitForm.name"></el-input>
                                     </el-form-item>
-
                                     <el-form-item label="備考" prop="remarks">
                                         <el-input type="textarea" v-model="unitForm.remarks"></el-input>
                                     </el-form-item>
@@ -27,9 +26,8 @@
                                     </el-form-item>
                                 </el-form>
                             </div>
-
                         </el-main>
-                        <el-footer class="unitfooter">
+                        <el-footer>
                             <Footer></Footer>
                         </el-footer>
                     </el-container>
@@ -84,15 +82,16 @@ export default {
             unitExist: false,
             employee_info: {
                 employee_id: '',
-            }
+            },
+            bg: [],
         }
     },
     mounted() {
-
+        this.getUnit
     },
     methods: {
         async getUnit() {
-            await this.$axios.get("/api/units").then((res) => {
+            await this.$axios.get("/api1/units").then((res) => {
                 this.unitOptions = res.data.data.name;
             }).catch(err => console.log(err));
         },
@@ -119,7 +118,7 @@ export default {
                 this.unitForm.del_flg = 0;
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        this.$axios.post("/api/units", this.form).then((res) => {
+                        this.$axios.post("/api1/units", this.form).then((res) => {
                             if (res.data.flag) {
                                 this.$message.success("登録完了しました");
                                 this.$router.push({
@@ -151,9 +150,9 @@ export default {
                 remarks: '',
             }
         },
-
     },
-    computed: {},
+    computed: {
+    },
     filters: {},
 }
 </script>
@@ -168,7 +167,7 @@ export default {
     min-height: 36px;
 }
 
-.ioinfobody {
+.layout {
     background-image: url("../assets/img/bg3.jpg");
     background-position: center;
     height: 100%;
@@ -183,14 +182,14 @@ export default {
 
 }
 
-.unitheader {
+.header {
     background-clip: padding-box;
     padding: 10px 30px;
     background: #fff;
     border: 1px solid #eaeaea;
 }
 
-.unitmain {
+.main {
     background-clip: padding-box;
     padding: 25px 30px;
     background: #fff;
@@ -198,13 +197,8 @@ export default {
 
 }
 
-.unitfooter {
-    background-clip: padding-box;
-    padding: 20px 30px;
-    text-align: center;
-    background: #fff;
-    color: #909399;
-    border: 1px solid #eaeaea;
+.el-footer {
+    padding: 0;
 }
 
 .h2title {

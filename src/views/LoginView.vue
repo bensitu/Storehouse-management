@@ -1,7 +1,7 @@
 <template>
-    <div class="loginbody">
-        <div class="logindata">
-            <div class="logintext">
+    <div class="layout">
+        <div class="loginBox">
+            <div class="header">
                 <h3>倉庫管理システム</h3>
             </div>
             <div class="formdata">
@@ -21,9 +21,9 @@
                     <el-checkbox v-model="checked" @change="remenber">ユーザーIDとパスワードを保存する</el-checkbox>
                 </div>
             </div>
-            <div class="butt">
+            <div class="button">
                 <el-button type="primary" @click.native.prevent="login('form')">ログイン</el-button>
-                <el-button class="shou" @click="register">新規登録</el-button>
+                <el-button class="" @click="register">新規登録</el-button>
             </div>
         </div>
     </div>
@@ -121,18 +121,27 @@ export default {
 </script>
 
 <style scoped>
-.loginbody {
-    min-width: 1000px;
+.layout {
     background-image: url("../assets/img/bg.jpg");
     background-position: center;
     height: 100%;
     width: 100%;
     background-size: cover;
     position: fixed;
-    padding-top: 50px;
 }
 
-.logintext {
+.loginBox {
+    width: 350px;
+    border-radius: 15px;
+    background-clip: padding-box;
+    margin: 95px auto;
+    padding: 25px 35px;
+    background: #fff;
+    border: 1px solid #eaeaea;
+    box-shadow: 0 0 25px #cac6c6;
+}
+
+.header {
     line-height: 20px;
     text-align: center;
     font-size: 20px;
@@ -141,45 +150,28 @@ export default {
     color: #505458;
 }
 
-.logindata {
-    width: 350px;
-    /* transform: translate(-50%); */
-    border-radius: 15px;
-    background-clip: padding-box;
-    margin: 90px auto;
-    padding: 25px 35px;
-    background: #fff;
-    border: 1px solid #eaeaea;
-    box-shadow: 0 0 25px #cac6c6;
-}
-
 .tool {
     display: flex;
     justify-content: space-between;
     color: #606266;
 }
 
-.butt {
+.button {
     margin-top: 10px;
     text-align: center;
 }
 
-.shou {
-    cursor: pointer;
-    color: #606266;
-}
-
 
 /*ui*/
-/* /deep/ .el-form-item__label {
-  font-weight: bolder;
-  font-size: 15px;
-  text-align: left;
+/* :deep .el-form-item__label {
+    font-weight: bolder;
+    font-size: 15px;
+    text-align: left;
 }
 
-/deep/ .el-button {
-  width: 100%;
-  margin-bottom: 10px;
+:deep .el-button {
+    width: 100%;
+    margin-bottom: 10px;
 
 } */
 </style>

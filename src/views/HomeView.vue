@@ -1,13 +1,13 @@
 <template>
-  <div class="homebody">
+  <div class="layout">
     <el-row :gutter="5">
       <el-col :span="20" :offset="2" :xs="20" :sm="20" :md="20" :lg="20" :xl="20">
         <div class="grid-content">
           <el-container class="container-shadow">
-            <el-header class="homeheader">
+            <el-header class="header">
               <Header></Header>
             </el-header>
-            <el-main class="homemain">
+            <el-main class="main">
               <div class="mt-10 mb-30">
                 <div class="floatLeft">
                   <h2>在庫情報一覧</h2>
@@ -48,7 +48,6 @@
                   </div>
                 </el-form>
               </div>
-
               <div class="clearBoth"></div>
 
               <el-table :data="stockDataList" stripe border show-summary>
@@ -84,7 +83,7 @@
                 </div>
               </div>
             </el-main>
-            <el-footer class="homefooter">
+            <el-footer>
               <Footer></Footer>
             </el-footer>
           </el-container>
@@ -153,7 +152,7 @@ export default {
   },
   methods: {
     async getStockData() {
-      await this.$axios.get("/api/stocks/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
+      await this.$axios.get("/api1/stocks/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
         this.pagination.pageSize = res.data.data.size;
         this.pagination.currentPage = res.data.data.current;
         this.pagination.total = res.data.data.total;
@@ -166,7 +165,7 @@ export default {
         return;
       }
       if (this.searchForm.date !== null) {
-        this.$axios.get("/api/stocks/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + "?" + date).then((res) => {
+        this.$axios.get("/api1/stocks/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + "?" + date).then((res) => {
           this.pagination.pageSize = res.data.data.size;
           this.pagination.currentPage = res.data.data.current;
           this.pagination.total = res.data.data.total;
@@ -195,7 +194,7 @@ export default {
     },
     handleDelete(index, row) {
       this.$confirm("削除は確認しましたか", "確認メッセージ", { type: "warning", confirmButtonText: '確認', cancelButtonText: 'キャンセル', center: true }).then(() => {
-        this.$axios.delete("/api/stocks/delete/" + row.id).then((res) => {
+        this.$axios.delete("/api1/stocks/delete/" + row.id).then((res) => {
           if (res.data.flag) {
             this.$message.success("削除しました");
           } else {
@@ -241,7 +240,7 @@ export default {
   min-height: 36px;
 }
 
-.homebody {
+.layout {
   background-image: url("../assets/img/bg4.jpg");
   background-position: center;
   height: 100%;
@@ -260,27 +259,22 @@ export default {
   width: 30%;
 }
 
-.homeheader {
+.header {
   background-clip: padding-box;
   padding: 10px 30px;
   background: #fff;
   border: 1px solid #eaeaea;
 }
 
-.homemain {
+.main {
   background-clip: padding-box;
   padding: 25px 30px;
   background: #fff;
   border: 1px solid #eaeaea;
 }
 
-.homefooter {
-  background-clip: padding-box;
-  padding: 20px 30px;
-  text-align: center;
-  background: #fff;
-  color: #909399;
-  border: 1px solid #eaeaea;
+.el-footer {
+  padding: 0;
 }
 
 .searchBox,

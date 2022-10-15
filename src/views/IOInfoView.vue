@@ -1,13 +1,13 @@
 <template>
-    <div class="ioinfobody">
+    <div class="layout">
         <el-row :gutter="5">
             <el-col :span="20" :offset="2" :xs="20" :sm="20" :md="20" :lg="20" :xl="20">
                 <div class="grid-content">
                     <el-container class="container-shadow">
-                        <el-header class="infoheader">
+                        <el-header class="header">
                             <Header></Header>
                         </el-header>
-                        <el-main class="ioinfomain">
+                        <el-main class="main">
                             <div class="mt-10 mb-30">
                                 <div class=" floatLeft">
                                     <h2>入出庫情報一覧</h2>
@@ -47,8 +47,8 @@
                                         </el-date-picker>
                                         <el-select class="mb-10 mr-15" v-model="searchForm.stockType" clearable
                                             placeholder="入出庫タイプ選択">
-                                            <el-option v-for="item in ioTypeOptions" :key="item.value"
-                                                :label="item.label" :value="item.value">
+                                            <el-option v-for="item in ioTypeOptions" :key="item.unit_id"
+                                                :label="item.name" :value="item.unit_id">
                                             </el-option>
                                         </el-select>
                                         <el-button class="mb-10" type="primary" icon="el-icon-search"
@@ -57,9 +57,6 @@
                                         </el-button>
                                     </div>
                                 </div>
-                                <!-- <div class="goBack floatRight">
-                                    <el-button class="ml-5" type="info" @click="handleBack()">戻る</el-button>
-                                </div> -->
                                 <div class="clearBoth"></div>
                             </div>
                             <div class="newRecord mb-20">
@@ -84,7 +81,7 @@
                                 </div>
                             </div>
                         </el-main>
-                        <el-footer class="infofooter">
+                        <el-footer>
                             <Footer></Footer>
                         </el-footer>
                     </el-container>
@@ -113,7 +110,7 @@ export default {
                 num: 0,
             },
             searchForm: {
-                stockType: '',
+                stockType: [],
                 date: '',
             },
             ioTypeOptions: [],
@@ -159,16 +156,22 @@ export default {
         }
     },
     mounted() {
-
+        this.getStockType();
     },
     methods: {
         async getIOData() {
-            await this.$axios.get("/api/stocks/io/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
+            await this.$axios.get("/api1/stocks/io/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
                 this.pagination.pageSize = res.data.data.size;
                 this.pagination.currentPage = res.data.data.current;
                 this.pagination.total = res.data.data.total;
                 this.stockDataList = res.data.data.records;
             }).catch(err => console.log(err));
+        },
+        async getStockType() {
+            await this.$axios.get("/api1/codes").then((res) => {
+                this.ioTypeOptions = res.data.data.map((item, index) => { return Object.assign({}, { 'unit_id': item.codeId, 'name': item.name }) })
+                console.log(this.ioTypeOptions);
+            })
         },
         searchIOInfo() {
             let params = {
@@ -186,7 +189,7 @@ export default {
                 //     url: '/api/stocks/io/search/',
                 //     params: params,
                 // }).then()
-                this.$axios.get("/api/stocks/io/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + "?" + date + "&" + stockType).then((res) => {
+                this.$axios.get("/api1/stocks/io/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + "?" + date + "&" + stockType).then((res) => {
                     this.pagination.pageSize = res.data.data.size;
                     this.pagination.currentPage = res.data.data.current;
                     this.pagination.total = res.data.data.total;
@@ -227,7 +230,7 @@ export default {
     min-height: 36px;
 }
 
-.ioinfobody {
+.layout {
     background-image: url("../assets/img/bg2.jpg");
     background-position: center;
     height: 100%;
@@ -239,17 +242,16 @@ export default {
 .container-shadow {
     box-shadow:
         -5px 5px 20px -4px #cac6c6, 5px 5px 20px -4px #cac6c6;
-
 }
 
-.infoheader {
+.header {
     background-clip: padding-box;
     padding: 10px 30px;
     background: #fff;
     border: 1px solid #eaeaea;
 }
 
-.ioinfomain {
+.main {
     background-clip: padding-box;
     padding: 25px 30px;
     background: #fff;
@@ -257,13 +259,8 @@ export default {
 
 }
 
-.infofooter {
-    background-clip: padding-box;
-    padding: 20px 30px;
-    text-align: center;
-    background: #fff;
-    color: #909399;
-    border: 1px solid #eaeaea;
+.el-footer {
+    padding: 0;
 }
 
 .searchBox,
