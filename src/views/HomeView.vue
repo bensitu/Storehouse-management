@@ -1,6 +1,6 @@
 <template>
   <div class="layout">
-    <el-row :gutter="5">
+    <el-row :gutter="0">
       <el-col :span="20" :offset="2" :xs="20" :sm="20" :md="20" :lg="20" :xl="20">
         <div class="grid-content">
           <el-container class="container-shadow">
@@ -50,26 +50,27 @@
               </div>
               <div class="clearBoth"></div>
 
-              <el-table :data="stockDataList" stripe border show-summary>
-                <el-table-column type="selection" align="center" width="40"></el-table-column>
-                <el-table-column prop="id" align="center" label="在庫ID"></el-table-column>
-                <el-table-column prop="name" align="center" label="在庫名称"></el-table-column>
-                <el-table-column prop="io_type" align="center" label="単位"></el-table-column>
-                <el-table-column prop="io_num" align="center" label="在庫数量"></el-table-column>
+              <el-table :data="stockTableDataList" stripe border show-summary :summary-method="getSummaries"
+                :default-sort="{prop: 'id', order: 'ascending'}">
+                <el-table-column type="selection" align="center" width="54"></el-table-column>
+                <el-table-column prop="id" align="center" label="在庫ID" sortable></el-table-column>
+                <el-table-column prop="name" align="center" label="在庫名称" sortable></el-table-column>
+                <el-table-column prop="io_type" align="center" label="単位" sortable></el-table-column>
+                <el-table-column prop="io_num" align="center" label="在庫数量" sortable></el-table-column>
                 <el-table-column prop="io_person" align="center" label="更新者"></el-table-column>
-                <el-table-column prop="io_datetime" align="center" label="更新日時"></el-table-column>
+                <el-table-column prop="io_datetime" align="center" label="更新日時" sortable></el-table-column>
                 <el-table-column prop="remarks" align="center" label="備考"></el-table-column>
                 <el-table-column align="center" label="操作">
                   <template v-slot="scope">
-                    <el-button size="mini" type="warning" @click="handleEdit(scope.$index, scope.row)">編集<i
-                        class="el-icon-edit ml-5"></i></el-button>
+                    <el-button size="mini" type="warning" @click="handleEdit(scope.$index, scope.row)">編集 <i
+                        class="el-icon-edit mr-5"></i></el-button>
                     <br>
                     <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)" class="mt-5">
-                      削除<i class="el-icon-delete ml-5"></i>
+                      削除 <i class="el-icon-delete mr-5"></i>
                     </el-button>
                     <br>
                     <el-button size="mini" type="info" @click="handleAddIO(scope.$index, scope.row)" class="mt-5">
-                      入出庫<i class="el-icon-shopping-cart-2 ml-5"></i>
+                      入出庫 <i class="el-icon-shopping-cart-2"></i>
                     </el-button>
                   </template>
                 </el-table-column>
@@ -109,9 +110,10 @@ export default {
       searchForm: {
         name: '',
         stockType: '',
-        date: '',
+        date: [],
       },
-      stockTypeOptions: [],
+      stockTypeOptions: [{ value: 0, label: '在庫数量あり' }, { value: 1, label: '在庫数量なし' }],
+      stockTableDataList: [],
       pickerOptions: {
         shortcuts: [{
           text: '最近一週間',
@@ -139,7 +141,6 @@ export default {
           }
         }]
       },
-      stockDataList: [],
       pagination: {
         currentPage: 1,
         pageSize: 10,
@@ -148,7 +149,7 @@ export default {
     }
   },
   mounted() {
-
+    this.getStockData();
   },
   methods: {
     async getStockData() {
@@ -156,7 +157,7 @@ export default {
         this.pagination.pageSize = res.data.data.size;
         this.pagination.currentPage = res.data.data.current;
         this.pagination.total = res.data.data.total;
-        this.stockDataList = res.data.data.records;
+        this.stockTableDataList = res.data.data.records;
       })
     },
     searchStockInfo() {
@@ -169,7 +170,7 @@ export default {
           this.pagination.pageSize = res.data.data.size;
           this.pagination.currentPage = res.data.data.current;
           this.pagination.total = res.data.data.total;
-          this.stockDataList = res.data.data.records;
+          this.stockTableDataList = res.data.data.records;
         }).catch(err => console.log(err));
       } else {
         this.getStockData();
@@ -195,7 +196,7 @@ export default {
     handleDelete(index, row) {
       this.$confirm("削除は確認しましたか", "確認メッセージ", { type: "warning", confirmButtonText: '確認', cancelButtonText: 'キャンセル', center: true }).then(() => {
         this.$axios.delete("/api1/stocks/delete/" + row.id).then((res) => {
-          if (res.data.flag) {
+          if (res.data) {
             this.$message.success("削除しました");
           } else {
             this.$message.error("削除できません");
@@ -214,16 +215,44 @@ export default {
     handleAddIO(index, row) {
       this.$router.push({
         name: 'ioinfo',
+        params: { stock_id: row.id, name: row.name, io_num: row.io_num }
       })
     },
     handleBack() {
       this.$router.push({
         name: 'login',
-        // params: {
-        //   message: this.employee_info.message,
-        // }
       })
     },
+    getSummaries(param) {
+      const { columns, data } = param;
+      const sums = [];
+      columns.forEach((column, index) => {
+        if (index === 0) {
+          sums[index] = '合計';
+          return;
+        }
+        if (index === 1) {
+          sums[index] = '';
+          return;
+        }
+        const values = data.map(item => Number(item[column.property]));
+        if (!values.every(value => isNaN(value))) {
+          sums[index] = values.reduce((prev, curr) => {
+            const value = Number(curr);
+            if (!isNaN(value)) {
+              return prev + curr;
+            } else {
+              return prev;
+            }
+          }, 0);
+          sums[index] += '';
+        } else {
+          sums[index] = '';
+        }
+      });
+      return sums;
+    },
+
   },
   computed: {},
   filters: {},
@@ -238,15 +267,16 @@ export default {
 .grid-content {
   border-radius: 4px;
   min-height: 36px;
+  height: 100%;
 }
 
 .layout {
   background-image: url("../assets/img/bg4.jpg");
   background-position: center;
-  height: 100%;
+  min-height: 100vh;
   width: 100%;
   background-size: cover;
-  position: fixed;
+  /* position: fixed; */
 }
 
 .container-shadow {

@@ -1,10 +1,10 @@
 <template>
     <div class="layout">
-        <div class="loginBox">
+        <div class="loginContainer">
             <div class="header">
                 <h3>倉庫管理システム</h3>
             </div>
-            <div class="formdata">
+            <div>
                 <el-form ref="loginForm" :model="loginForm" :rules="loginRules">
                     <el-form-item prop="username">
                         <el-input type="text" v-model.trim="loginForm.username" clearable placeholder="ユーザーID"
@@ -18,7 +18,7 @@
             </div>
             <div class="tool">
                 <div>
-                    <el-checkbox v-model="checked" @change="remenber">ユーザーIDとパスワードを保存する</el-checkbox>
+                    <el-checkbox v-model="checked" @change="remenberID">ユーザーIDとパスワードを保存する</el-checkbox>
                 </div>
             </div>
             <div class="button">
@@ -101,7 +101,7 @@ export default {
                 }
             });
         },
-        remenber(data) {
+        remenberID(data) {
             this.checked = data
             if (this.checked) {
                 localStorage.setItem("news", JSON.stringify(this.form))
@@ -130,7 +130,7 @@ export default {
     position: fixed;
 }
 
-.loginBox {
+.loginContainer {
     width: 350px;
     border-radius: 15px;
     background-clip: padding-box;
@@ -160,18 +160,4 @@ export default {
     margin-top: 10px;
     text-align: center;
 }
-
-
-/*ui*/
-/* :deep .el-form-item__label {
-    font-weight: bolder;
-    font-size: 15px;
-    text-align: left;
-}
-
-:deep .el-button {
-    width: 100%;
-    margin-bottom: 10px;
-
-} */
 </style>

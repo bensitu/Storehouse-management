@@ -1,6 +1,6 @@
 <template>
     <div class="layout">
-        <el-row :gutter="5">
+        <el-row :gutter="0">
             <el-col :span="20" :offset="2" :xs="20" :sm="20" :md="20" :lg="20" :xl="20">
                 <div class="grid-content">
                     <el-container class="container-shadow">
@@ -20,9 +20,13 @@
                                         <el-input type="textarea" v-model="unitForm.remarks"></el-input>
                                     </el-form-item>
                                     <el-form-item>
-                                        <el-button type="primary" @click="onSubmit('unitForm')">登録</el-button>
-                                        <el-button type="warning" @click="resetform()">クリア</el-button>
-                                        <el-button type="info" @click="handleBack()">戻る</el-button>
+                                        <el-button type="primary" @click="onSubmit('unitForm')"
+                                            class="ml-0 mr-10 mb-10">登録
+                                        </el-button>
+                                        <el-button type="warning" @click="resetform()" class="ml-0 mr-10 mb-10">クリア
+                                        </el-button>
+                                        <el-button type="info" @click="handleBack()" class="ml-0 mr-10 mb-10">戻る
+                                        </el-button>
                                     </el-form-item>
                                 </el-form>
                             </div>
@@ -50,25 +54,26 @@ export default {
     },
     data() {
         let checkUnit = (rule, value, callback) => {
-            if (!value) {
-                return callback(new Error('単位名を入力してください'));
-            }
             setTimeout(() => {
                 let reg = /^[\u4E00-\u9FA5]+$/;
+                // if (!value) {
+                //     return callback(new Error('単位名を入力してください'));
+                // }
                 if (!reg.test(value)) {
                     callback(new Error('漢字を入力してください'));
                 } else if (this.checkExistingUnit(value)) {
                     callback(new Error('この単位はすでに存在します'));
+                } else {
+                    return callback();
                 }
             }, 500);
         };
         return {
             unitForm: {
-                unit_id: '',
                 name: '',
                 create_user_id: '',
                 update_user_id: '',
-                remarks: ''
+                remarks: '',
             },
             unitRules: {
                 name: [
@@ -78,8 +83,8 @@ export default {
 
                 ],
             },
-            unitOptions: ['张'],
-            unitExist: false,
+            fetchUnitOptions: [],
+            isUnitExist: false,
             employee_info: {
                 employee_id: '',
             },
@@ -87,39 +92,37 @@ export default {
         }
     },
     mounted() {
-        this.getUnit
+        this.getUnit();
     },
     methods: {
         async getUnit() {
             await this.$axios.get("/api1/units").then((res) => {
-                this.unitOptions = res.data.data.name;
+                this.fetchUnitOptions = res.data.data.map(item => item.name);
             }).catch(err => console.log(err));
         },
         checkExistingUnit(value) {
-            if ((this.unitOptions).indexOf(value) > -1) {
-                //检查输入名称是否与unitOptions里面的相同
-                console.log("Yes");
-                this.unitExist = true;
+            if ((this.fetchUnitOptions).indexOf(value) > -1) {
+                //检查输入名称是否与fetchUnitOptions里面的相同
+                console.log("単位は存在しました");
+                this.isUnitExist = true;
                 return true;
             } else {
-                this.unitExist = false;
+                this.isUnitExist = false;
                 return false;
             }
         },
         onSubmit(formName) {
             if (this.unitForm.name != null && this.unitForm.name !== "" && this.unitForm.name !== undefined) {
-                if (this.unitExist) {
+                if (this.isUnitExist) {
                     return;
                 }
-                this.unitForm.create_user_id = this.employee_info.employee_id;
-                this.unitForm.update_user_id = this.employee_info.employee_id;
-                this.unitForm.create_date = new Date();
-                this.unitForm.update_date = new Date();
-                this.unitForm.del_flg = 0;
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        this.$axios.post("/api1/units", this.form).then((res) => {
-                            if (res.data.flag) {
+                        this.unitForm.create_user_id = this.employee_info.employee_id;
+                        this.unitForm.update_user_id = this.employee_info.employee_id;
+                        this.$axios.post("/api1/units/add", this.unitForm).then((res) => {
+                            console.log(res.data);
+                            if (res.data) {
                                 this.$message.success("登録完了しました");
                                 this.$router.push({
                                     name: 'home',
@@ -170,10 +173,10 @@ export default {
 .layout {
     background-image: url("../assets/img/bg3.jpg");
     background-position: center;
-    height: 100%;
+    min-height: 100vh;
     width: 100%;
     background-size: cover;
-    position: fixed;
+    background-position: fixed;
 }
 
 .container-shadow {

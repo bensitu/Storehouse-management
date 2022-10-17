@@ -1,6 +1,6 @@
 <template>
     <div class="layout">
-        <el-row :gutter="5">
+        <el-row :gutter="0">
             <el-col :span="20" :offset="2" :xs="20" :sm="20" :md="20" :lg="20" :xl="20">
                 <div class="grid-content">
                     <el-container class="container-shadow">
@@ -39,8 +39,10 @@
                                         <el-input type="textarea" v-model="ioForm.remarks"></el-input>
                                     </el-form-item>
                                     <el-form-item>
-                                        <el-button type="primary" @click="onSubmit('ioForm')">登録</el-button>
-                                        <el-button type="info" @click="handleBack()">戻る</el-button>
+                                        <el-button type="primary" @click="onSubmit('ioForm')" class="ml-0 mr-10 mb-10">
+                                            登録</el-button>
+                                        <el-button type="info" @click="handleBack()" class="ml-0 mr-10 mb-10">戻る
+                                        </el-button>
                                     </el-form-item>
                                 </el-form>
                             </div>
@@ -76,6 +78,8 @@ export default {
                 io_type: '',
                 io_num: '',
                 remarks: '',
+                create_user_id: '',
+                update_user_id: '',
                 del_flg: 0,
             },
             ioRules: {
@@ -104,6 +108,9 @@ export default {
                 this.ioTypeOptions = res.data.data.map((item, index) => { return Object.assign({}, { 'unit_id': item.codeId, 'name': item.name }) })
                 console.log(this.ioTypeOptions);
             })
+        },
+        async getIODetails() {
+
         },
         onSubmit(formName) {
             if (this.ioForm.attendance_date != null || this.ioForm.attendance_date !== "" || this.ioForm.attendance_date !== undefined) {
@@ -160,10 +167,9 @@ export default {
 .layout {
     background-image: url("../assets/img/bg2.jpg");
     background-position: center;
-    height: 100%;
+    min-height: 100vh;
     width: 100%;
     background-size: cover;
-    position: fixed;
 }
 
 .container-shadow {

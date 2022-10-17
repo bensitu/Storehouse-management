@@ -12,6 +12,10 @@ el-footer {
     padding: 0 !important;
 }
 
+.mr-0 {
+    margin-right: 0 !important;
+}
+
 .mr-5 {
     margin-right: 5px !important;
 }
@@ -30,6 +34,10 @@ el-footer {
 
 .mr-50 {
     margin-right: 50px !important;
+}
+
+.ml-0 {
+    margin-left: 0 !important;
 }
 
 .ml-5 {
