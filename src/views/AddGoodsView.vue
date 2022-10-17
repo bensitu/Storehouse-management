@@ -113,7 +113,6 @@ export default {
         const recordId = this.$route.params.id;
         this.$axios.get("/api1/stocks/" + recordId).then((res) => {
           this.goodsForm = res.data.data;
-          console.log(this.unitOptions);
           console.log(this.goodsForm.unitId);
           let tmp = this.unitOptions.find((item) => {
             return item.unit_id == this.goodsForm.unitId
