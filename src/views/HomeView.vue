@@ -42,7 +42,7 @@
                   <div class="floatRight mb-20">
                     <el-button class="mr-20" type="success" @click="handleCreate()">追加<i
                         class="el-icon-circle-plus-outline ml-5"></i></el-button>
-                    <el-button class="" type="danger" @click="handleDelete(scope.$index, scope.row)">削除<i
+                    <el-button class="" type="danger" @click="handleDeleteAll([scope.row])">削除<i
                         class="el-icon-delete ml-5"></i>
                     </el-button>
                   </div>
@@ -55,8 +55,8 @@
                 <el-table-column type="selection" align="center" width="54"></el-table-column>
                 <el-table-column prop="id" align="center" label="在庫ID" sortable></el-table-column>
                 <el-table-column prop="name" align="center" label="在庫名称" sortable></el-table-column>
-                <el-table-column prop="io_type" align="center" label="単位" sortable></el-table-column>
-                <el-table-column prop="io_num" align="center" label="在庫数量" sortable></el-table-column>
+                <el-table-column prop="unit_id" align="center" label="単位" sortable></el-table-column>
+                <el-table-column prop="stock_num" align="center" label="在庫数量" sortable></el-table-column>
                 <el-table-column prop="io_person" align="center" label="更新者"></el-table-column>
                 <el-table-column prop="io_datetime" align="center" label="更新日時" sortable></el-table-column>
                 <el-table-column prop="remarks" align="center" label="備考"></el-table-column>
@@ -212,10 +212,28 @@ export default {
       })
 
     },
+    handleDeleteAll([]) {
+      this.$confirm("削除は確認しましたか", "確認メッセージ", { type: "warning", confirmButtonText: '確認', cancelButtonText: 'キャンセル', center: true }).then(() => {
+        this.$axios.delete("/api1/stocks/delete/" + row.id).then((res) => {
+          if (res.data) {
+            this.$message.success("削除しました");
+          } else {
+            this.$message.error("削除できません");
+          }
+        }).finally(() => {
+          this.getStockData();
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: 'キャンセルしました'
+        });
+      })
+    },
     handleAddIO(index, row) {
       this.$router.push({
         name: 'ioinfo',
-        params: { stock_id: row.id, name: row.name, io_num: row.io_num }
+        params: { stock_id: row.id, name: row.name, io_num: row.io_num, unit_id: row.unit_id }
       })
     },
     handleBack() {

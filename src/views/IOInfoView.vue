@@ -43,7 +43,7 @@
                                     <div>
                                         <el-date-picker class="mb-10 mr-15" v-model="searchForm.date" type="daterange"
                                             align="right" unlink-panels range-separator="〜" start-placeholder="開始日"
-                                            end-placeholder="終了日" :picker-options="pickerOptions">
+                                            end-placeholder="終了日" :picker-options="pickerOptions" @blur="showInfo()">
                                         </el-date-picker>
                                         <el-select class="mb-10 mr-15" v-model="searchForm.stockType" clearable
                                             placeholder="入出庫タイプ選択">
@@ -165,6 +165,8 @@ export default {
         async getIOData() {
             this.stockItem.id = this.$route.params.stock_id;
             console.log(this.$route.params);
+            this.stockItem.name = this.$route.params.name;
+            this.stockItem.num = this.$route.params.io_num;
             //let param = "?id=" + this.stockItem.id;
             await this.$axios.get("/api1/stocks/io/" + this.stockItem.id + "/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
                 this.pagination.pageSize = res.data.data.size;
@@ -248,8 +250,16 @@ export default {
             });
             return sums;
         },
+        showInfo() {
+            console.log()
+        }
     },
-    computed: {},
+    computed: {
+        getRecordId() {
+            console.log(this.searchForm.date)
+
+        }
+    },
     filters: {},
 }
 </script>

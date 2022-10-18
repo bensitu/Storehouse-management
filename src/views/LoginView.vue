@@ -1,31 +1,39 @@
 <template>
     <div class="layout">
-        <div class="loginContainer">
-            <div class="header">
-                <h3>倉庫管理システム</h3>
-            </div>
-            <div>
-                <el-form ref="loginForm" :model="loginForm" :rules="loginRules">
-                    <el-form-item prop="username">
-                        <el-input type="text" v-model.trim="loginForm.username" clearable placeholder="ユーザーID"
-                            auto-complete="off" prefix-icon="el-icon-user-solid"></el-input>
-                    </el-form-item>
-                    <el-form-item prop="password">
-                        <el-input type="password" v-model="loginForm.password" clearable placeholder="パスワード"
-                            show-password auto-complete="off" prefix-icon="el-icon-lock"></el-input>
-                    </el-form-item>
-                </el-form>
-            </div>
-            <div class="tool">
-                <div>
-                    <el-checkbox v-model="checked" @change="remenberID">ユーザーIDとパスワードを保存する</el-checkbox>
+        <el-container>
+            <!-- <el-header></el-header> -->
+            <el-main>
+                <div class="loginContainer">
+                    <div class="header">
+                        <h3>倉庫管理システム</h3>
+                    </div>
+                    <div>
+                        <el-form ref="loginForm" :model="loginForm" :rules="loginRules">
+                            <el-form-item prop="username">
+                                <el-input type="text" v-model.trim="loginForm.username" clearable placeholder="ユーザーID"
+                                    auto-complete="off" prefix-icon="el-icon-user-solid"></el-input>
+                            </el-form-item>
+                            <el-form-item prop="password">
+                                <el-input type="password" v-model="loginForm.password" clearable placeholder="パスワード"
+                                    show-password auto-complete="off" prefix-icon="el-icon-lock"></el-input>
+                            </el-form-item>
+                        </el-form>
+                    </div>
+                    <div class="tool">
+                        <div>
+                            <el-checkbox v-model="checked" @change="remenberID">ユーザーIDとパスワードを保存する</el-checkbox>
+                        </div>
+                    </div>
+                    <div class="button">
+                        <el-button type="primary" @click.native.prevent="login('form')">ログイン</el-button>
+                        <el-button class="" @click="register">新規登録</el-button>
+                    </div>
                 </div>
-            </div>
-            <div class="button">
-                <el-button type="primary" @click.native.prevent="login('form')">ログイン</el-button>
-                <el-button class="" @click="register">新規登録</el-button>
-            </div>
-        </div>
+            </el-main>
+        </el-container>
+
+
+
     </div>
 </template>
   
@@ -64,14 +72,13 @@ export default {
             this.$refs.loginForm.validate((valid) => {
                 if (valid) {
                     // login(this.loginForm)
-                    this.$axios
-                        .post('/api/login', {
-                            employee_id: this.loginForm.employee_id,
-                            password: this.loginForm.password
-                        })
+                    this.$axios.post('/api1/login', {
+                        userId: this.loginForm.username,
+                        password: this.loginForm.password
+                    })
                         .then(res => {
                             if (res.data.code === 200) {
-                                localStorage.setItem("USERNAME", res.data.username);
+                                sessionStorage.setItem("USERNAME", res.data.data.username);
                                 this.$message({
                                     message: "ログインしました",
                                     type: "success",
@@ -124,10 +131,10 @@ export default {
 .layout {
     background-image: url("../assets/img/bg.jpg");
     background-position: center;
-    height: 100%;
+    height: 100vh;
     width: 100%;
     background-size: cover;
-    position: fixed;
+    /* position: fixed; */
 }
 
 .loginContainer {

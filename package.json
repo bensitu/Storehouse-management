@@ -11,8 +11,9 @@
     "core-js": "^3.25.5",
     "default-passive-events": "^2.0.0",
     "element-ui": "^2.15.10",
-    "vue": "^2.7.12",
-    "vue-router": "^3.6.5"
+    "vue": "^2.7.13",
+    "vue-router": "^3.6.5",
+    "vuex": "^3.6.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~5.0.8",
