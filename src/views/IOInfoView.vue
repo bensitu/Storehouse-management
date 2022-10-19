@@ -64,12 +64,19 @@
                                         class="el-icon-circle-plus-outline ml-5"></i></el-button>
                             </div>
 
-                            <el-table :data="ioTableDataList" stripe border show-summary :summary-method="getSummaries"
+                            <el-table :data="ioTableDataList" stripe border
                                 :default-sort="{prop: 'id', order: 'ascending'}">
-                                <el-table-column prop="record_id" align="center" label="記録番号"></el-table-column>
+                                <el-table-column prop="record_id" align="center" label="記録番号">
+                                    <template v-slot="recordIdScope">
+                                        {{ recordIdScope.row.id | getRecordId }}
+                                    </template>
+                                </el-table-column>
                                 <el-table-column prop="ioType" align="center" label="入出庫タイプ"></el-table-column>
                                 <el-table-column prop="ioNum" align="center" label="入出庫数量"></el-table-column>
-                                <el-table-column prop="updateDate" align="center" label="入出庫日時"></el-table-column>
+                                <el-table-column prop="updateDate" align="center" label="入出庫日時"><template
+                                        v-slot="updateDateScope">
+                                        {{ updateDateScope.row.updateDate | convertDate }}
+                                    </template></el-table-column>
                                 <el-table-column prop="updateUser" align="center" label="入出庫者"></el-table-column>
                                 <el-table-column prop="remarks" align="center" label="備考"></el-table-column>
                             </el-table>
@@ -154,7 +161,8 @@ export default {
                 pageSize: 10,
                 total: 0,
                 search_date: ''
-            }
+            },
+            that: this,
         }
     },
     mounted() {
@@ -164,15 +172,15 @@ export default {
     methods: {
         async getIOData() {
             this.stockItem.id = this.$route.params.stock_id;
-            console.log(this.$route.params);
+            //console.log(this.$route.params);
             this.stockItem.name = this.$route.params.name;
             this.stockItem.num = this.$route.params.io_num;
-            //let param = "?id=" + this.stockItem.id;
             await this.$axios.get("/api1/stocks/io/" + this.stockItem.id + "/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
                 this.pagination.pageSize = res.data.data.size;
                 this.pagination.currentPage = res.data.data.current;
                 this.pagination.total = res.data.data.total;
                 this.ioTableDataList = res.data.data.records;
+
             }).catch(err => console.log(err));
         },
         async getStockType() {
@@ -185,8 +193,10 @@ export default {
                 date: this.searchForm.date,
                 type: this.searchForm.stockType
             }
-            let date = "date=" + this.searchForm.date;
-            let stockType = "type=" + this.searchForm.stockType;
+
+            let param = "?date=" + this.searchForm.date;
+            param += "&type=" + this.searchForm.stockType;
+            console.log(params)
             if (this.searchForm.date == '' && this.searchForm.stockType == '') {
                 return;
             }
@@ -196,7 +206,7 @@ export default {
                 //     url: '/api/stocks/io/search/',
                 //     params: params,
                 // }).then()
-                this.$axios.get("/api1/stocks/io/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + "?" + date + "&" + stockType).then((res) => {
+                this.$axios.get("/api1/stocks/io/" + this.stockItem.id + "/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + param).then((res) => {
                     this.pagination.pageSize = res.data.data.size;
                     this.pagination.currentPage = res.data.data.current;
                     this.pagination.total = res.data.data.total;
@@ -255,12 +265,30 @@ export default {
         }
     },
     computed: {
-        getRecordId() {
-            console.log(this.searchForm.date)
 
-        }
+
     },
-    filters: {},
+    filters: {
+        convertDate(value) {
+            if (value != null) {
+                let date = new Date(value);
+                let Y = date.getFullYear() + '-';
+                let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                let D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate()) + '\n ';
+                let h = (date.getHours() < 10 ? '0' + (date.getHours()) : date.getHours()) + ':';
+                let m = (date.getMinutes() < 10 ? '0' + (date.getMinutes()) : date.getMinutes()) + ':';
+                let s = (date.getSeconds() < 10 ? '0' + (date.getSeconds()) : date.getSeconds());
+                return (Y + M + D + h + m + s);
+            }
+        },
+        getRecordId(value) {
+            // console.log(this.ioTableDataList);
+            if (value != null) {
+
+                return value + "";
+            }
+        },
+    },
 }
 </script>
 

@@ -50,15 +50,20 @@
               </div>
               <div class="clearBoth"></div>
 
-              <el-table :data="stockTableDataList" stripe border show-summary :summary-method="getSummaries"
-                :default-sort="{prop: 'id', order: 'ascending'}">
+              <el-table :data="stockTableDataList" stripe border :default-sort="{prop: 'id', order: 'ascending'}">
                 <el-table-column type="selection" align="center" width="54"></el-table-column>
                 <el-table-column prop="id" align="center" label="在庫ID" sortable></el-table-column>
                 <el-table-column prop="name" align="center" label="在庫名称" sortable></el-table-column>
-                <el-table-column prop="unit_id" align="center" label="単位" sortable></el-table-column>
-                <el-table-column prop="stock_num" align="center" label="在庫数量" sortable></el-table-column>
-                <el-table-column prop="io_person" align="center" label="更新者"></el-table-column>
-                <el-table-column prop="io_datetime" align="center" label="更新日時" sortable></el-table-column>
+                <el-table-column prop="unitId" align="center" label="単位" sortable><template v-slot="unitIdScope">
+                    {{ unitIdScope.row.unitId | convertUnitName }}
+
+                  </template></el-table-column>
+                <el-table-column prop="stockNum" align="center" label="在庫数量" sortable></el-table-column>
+                <el-table-column prop="updateUser" align="center" label="更新者"></el-table-column>
+                <el-table-column prop="updateDate" align="center" label="更新日時" sortable><template
+                    v-slot="updateDateScope">
+                    {{ updateDateScope.row.updateDate | convertDate }}
+                  </template></el-table-column>
                 <el-table-column prop="remarks" align="center" label="備考"></el-table-column>
                 <el-table-column align="center" label="操作">
                   <template v-slot="scope">
@@ -145,11 +150,13 @@ export default {
         currentPage: 1,
         pageSize: 10,
         total: 0,
-      }
+      },
+      that: this,
     }
   },
   mounted() {
     this.getStockData();
+    this.getUnit();
   },
   methods: {
     async getStockData() {
@@ -158,7 +165,21 @@ export default {
         this.pagination.currentPage = res.data.data.current;
         this.pagination.total = res.data.data.total;
         this.stockTableDataList = res.data.data.records;
+        //console.log(this.stockTableDataList);
       })
+    },
+    getUnit() {
+      if (this.$store.state.unit_name == '') {
+        //console.log("null");
+        this.$axios.get("/api1/units").then((res) => {
+          this.$store.dispatch('getNames', res.data.data.map((item, index) => { return Object.assign({}, { unit_id: item.unitId, name: item.name }) }));
+          // console.log(this.$store.state.unit_name)
+        }).catch(err => console.log(err));
+      } else {
+        //console.log("not null");
+        return;
+      }
+
     },
     searchStockInfo() {
       let date = "date=" + this.searchForm.date;
@@ -233,7 +254,7 @@ export default {
     handleAddIO(index, row) {
       this.$router.push({
         name: 'ioinfo',
-        params: { stock_id: row.id, name: row.name, io_num: row.io_num, unit_id: row.unit_id }
+        params: { stock_id: row.id, name: row.name, io_num: row.stockNum, unit_id: row.unitId }
       })
     },
     handleBack() {
@@ -241,39 +262,34 @@ export default {
         name: 'login',
       })
     },
-    getSummaries(param) {
-      const { columns, data } = param;
-      const sums = [];
-      columns.forEach((column, index) => {
-        if (index === 0) {
-          sums[index] = '合計';
-          return;
-        }
-        if (index === 1) {
-          sums[index] = '';
-          return;
-        }
-        const values = data.map(item => Number(item[column.property]));
-        if (!values.every(value => isNaN(value))) {
-          sums[index] = values.reduce((prev, curr) => {
-            const value = Number(curr);
-            if (!isNaN(value)) {
-              return prev + curr;
-            } else {
-              return prev;
-            }
-          }, 0);
-          sums[index] += '';
-        } else {
-          sums[index] = '';
-        }
-      });
-      return sums;
-    },
 
   },
-  computed: {},
-  filters: {},
+  computed: {
+    convertUnitName1: function () {
+      //console.log(this.$store.state.unit_name);
+
+    }
+  },
+  filters: {
+    convertDate(value) {
+      if (value != null) {
+        let date = new Date(value);
+        let Y = date.getFullYear() + '-';
+        let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+        let D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate()) + '\n ';
+        let h = (date.getHours() < 10 ? '0' + (date.getHours()) : date.getHours()) + ':';
+        let m = (date.getMinutes() < 10 ? '0' + (date.getMinutes()) : date.getMinutes()) + ':';
+        let s = (date.getSeconds() < 10 ? '0' + (date.getSeconds()) : date.getSeconds());
+        return (Y + M + D + h + m + s);
+      }
+    },
+    convertUnitName(value, that) {
+      if (value != null) {
+
+        return value
+      }
+    }
+  },
 }
 </script>
 
