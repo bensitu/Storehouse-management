@@ -25,7 +25,8 @@
                                         <el-input v-model="ioForm.stock_num" readonly class="ioreadonly"></el-input>
                                     </el-form-item>
                                     <el-form-item label="入出庫タイプ" prop="io_type">
-                                        <el-select v-model="ioForm.io_type" clearable placeholder="入出庫タイプ選択">
+                                        <el-select v-model="ioForm.io_type" clearable placeholder="入出庫タイプ選択"
+                                            @blur="blurChange()">
                                             <el-option v-for="item in ioTypeOptions" :key="item.unit_id"
                                                 :label="item.name" :value="item.unit_id">
                                             </el-option>
@@ -84,11 +85,11 @@ export default {
             },
             ioRules: {
                 io_type: [
-                    { type: 'array', required: true, message: 'タイプを選択してください', trigger: 'blur' }
+                    { type: 'number', required: true, message: 'タイプを選択してください', trigger: 'blur' }
 
                 ],
                 io_num: [
-                    { min: 0, max: 11, type: 'number', required: true, message: '0以上数字を入力してください', trigger: 'blur' },
+                    { min: 0, max: 999999999, type: 'number', required: true, message: '0以上数字を入力してください', trigger: 'blur' },
                     { required: true, message: '数字を入力してください', trigger: 'blur' }
                 ],
 
@@ -101,6 +102,7 @@ export default {
     },
     mounted() {
         this.getStockType();
+        this.getIODetails();
     },
     methods: {
         async getStockType() {
@@ -109,22 +111,29 @@ export default {
                 console.log(this.ioTypeOptions);
             })
         },
-        async getIODetails() {
+        getIODetails() {
+            this.ioForm.id = this.$route.params.stock_id;
 
+            if (this.ioForm.id != null) {
+                this.$store.dispatch('saveStockId', this.$route.params.stock_id);
+                this.$axios.get("/api1/stocks/" + this.ioForm.id).then((res) => {
+                    // console.log(res);
+                    this.ioForm.name = res.data.data.name;
+                    this.ioForm.unit_name = res.data.data.unitId;
+                    this.ioForm.stock_num = res.data.data.stockNum;
+                })
+            }
         },
         onSubmit(formName) {
-            if (this.ioForm.attendance_date != null || this.ioForm.attendance_date !== "" || this.ioForm.attendance_date !== undefined) {
-                this.ioForm.record_id = this.employee_info.employee_id + (this.form.attendance_date).replace(/-/g, '') + ((this.tempId < 10) ? ("0" + this.tempId) : this.tempId);
-                this.tempId++;
+            if (this.ioForm.io_type != null) {
                 this.ioForm.create_user_id = this.employee_info.employee_id;
                 this.ioForm.update_user_id = this.employee_info.employee_id;
-                this.ioForm.create_date = new Date();
-                this.ioForm.update_date = new Date();
-                this.ioForm.del_flg = 0;
+
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
+                        console.log(this.ioForm)
                         this.$axios.post("/api1/stocks/io/add", this.ioForm).then((res) => {
-                            if (res.data.flag) {
+                            if (res.data) {
                                 this.$message.success("登録完了しました");
                                 this.$router.push({
                                     name: 'home',
@@ -147,6 +156,9 @@ export default {
         },
         resetform() {
             this.form = {}
+        },
+        blurChange() {
+            console.log(this.ioForm.io_type);
         },
     },
     computed: {},

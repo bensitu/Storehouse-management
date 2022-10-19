@@ -201,11 +201,6 @@ export default {
                 return;
             }
             if (this.searchForm.date !== null) {
-                // this.$axios({
-                //     method: 'GET',
-                //     url: '/api/stocks/io/search/',
-                //     params: params,
-                // }).then()
                 this.$axios.get("/api1/stocks/io/" + this.stockItem.id + "/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + param).then((res) => {
                     this.pagination.pageSize = res.data.data.size;
                     this.pagination.currentPage = res.data.data.current;
@@ -224,6 +219,9 @@ export default {
         handleCreate() {
             this.$router.push({
                 name: 'addio',
+                params: {
+                    stock_id: this.stockItem.id
+                }
             })
         },
         handleBack() {

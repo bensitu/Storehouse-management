@@ -10,6 +10,9 @@ const actions = {
     getNames(context, value) {
         //console.log();
         context.commit('GetNames', value)
+    },
+    saveStockId(context, value) {
+        context.commit('SaveStockId', value)
     }
 }
 
@@ -25,6 +28,8 @@ const mutations = {
 const state = {
     unit_name: '',
     code: '',
+    stock_id: '',
+    employee_id: '',
 }
 
 // 创建并导出store

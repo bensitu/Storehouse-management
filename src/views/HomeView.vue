@@ -67,14 +67,15 @@
                 <el-table-column prop="remarks" align="center" label="備考"></el-table-column>
                 <el-table-column align="center" label="操作">
                   <template v-slot="scope">
-                    <el-button size="mini" type="warning" @click="handleEdit(scope.$index, scope.row)">編集 <i
+                    <el-button size="mini" type="warning" plain @click="handleEdit(scope.$index, scope.row)">編集 <i
                         class="el-icon-edit mr-5"></i></el-button>
                     <br>
-                    <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)" class="mt-5">
+                    <el-button size="mini" type="danger" plain @click="handleDelete(scope.$index, scope.row)"
+                      class="mt-5">
                       削除 <i class="el-icon-delete mr-5"></i>
                     </el-button>
                     <br>
-                    <el-button size="mini" type="info" @click="handleAddIO(scope.$index, scope.row)" class="mt-5">
+                    <el-button size="mini" type="info" plain @click="handleAddIO(scope.$index, scope.row)" class="mt-5">
                       入出庫 <i class="el-icon-shopping-cart-2"></i>
                     </el-button>
                   </template>
