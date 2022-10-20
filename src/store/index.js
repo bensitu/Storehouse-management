@@ -21,6 +21,10 @@ const mutations = {
     GetNames(state, value) {
         state.unit_name = value.map(item => item.name)
         // console.log(state, value);
+    },
+    SaveStockId(state, value) {
+        state.stock_id = value
+        console.log(state, value);
     }
 }
 

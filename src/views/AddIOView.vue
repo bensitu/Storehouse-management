@@ -19,21 +19,21 @@
                                         <el-input v-model="ioForm.name" readonly class="ioreadonly"></el-input>
                                     </el-form-item>
                                     <el-form-item label="単位" prop="unit_name">
-                                        <el-input v-model="ioForm.unit_name" readonly class="ioreadonly"></el-input>
+                                        <el-input v-model="ioForm.unitName" readonly class="ioreadonly"></el-input>
                                     </el-form-item>
                                     <el-form-item label="在庫数量" prop="stock_num">
-                                        <el-input v-model="ioForm.stock_num" readonly class="ioreadonly"></el-input>
+                                        <el-input v-model.number="ioForm.stockNum" readonly class="ioreadonly">
+                                        </el-input>
                                     </el-form-item>
                                     <el-form-item label="入出庫タイプ" prop="io_type">
-                                        <el-select v-model="ioForm.io_type" clearable placeholder="入出庫タイプ選択"
-                                            @blur="blurChange()">
-                                            <el-option v-for="item in ioTypeOptions" :key="item.unit_id"
-                                                :label="item.name" :value="item.unit_id">
+                                        <el-select v-model.number="ioForm.ioType" clearable placeholder="入出庫タイプ選択">
+                                            <el-option v-for="item in ioTypeOptions" :key="item.unitId"
+                                                :label="item.name" :value="item.unitId">
                                             </el-option>
                                         </el-select>
                                     </el-form-item>
                                     <el-form-item label="入出庫数量" prop="io_num">
-                                        <el-input v-model.number="ioForm.io_num"></el-input>
+                                        <el-input v-model.number="ioForm.ioNum"></el-input>
                                     </el-form-item>
 
                                     <el-form-item label="備考" prop="remarks">
@@ -73,22 +73,23 @@ export default {
         return {
             ioForm: {
                 id: '',
-                name: '',
-                unit_name: '',
-                stock_num: '',
-                io_type: '',
-                io_num: '',
+                // name: '',
+                // unitName: '',
+                // stockNum: '',
+                inOutNo: null,
+                ioType: null,
+                ioNum: null,
                 remarks: '',
-                create_user_id: '',
-                update_user_id: '',
-                del_flg: 0,
+                createUser: '',
+                updateUser: '',
+                delFlg: 0,
             },
             ioRules: {
-                io_type: [
+                ioType: [
                     { type: 'number', required: true, message: 'タイプを選択してください', trigger: 'blur' }
 
                 ],
-                io_num: [
+                ioNum: [
                     { min: 0, max: 999999999, type: 'number', required: true, message: '0以上数字を入力してください', trigger: 'blur' },
                     { required: true, message: '数字を入力してください', trigger: 'blur' }
                 ],
@@ -107,7 +108,7 @@ export default {
     methods: {
         async getStockType() {
             await this.$axios.get("/api1/codes").then((res) => {
-                this.ioTypeOptions = res.data.data.map((item, index) => { return Object.assign({}, { 'unit_id': item.codeId, 'name': item.name }) })
+                this.ioTypeOptions = res.data.data.map((item, index) => { return Object.assign({}, { 'unitId': item.codeId, 'name': item.name }) })
                 console.log(this.ioTypeOptions);
             })
         },
@@ -115,28 +116,36 @@ export default {
             this.ioForm.id = this.$route.params.stock_id;
 
             if (this.ioForm.id != null) {
-                this.$store.dispatch('saveStockId', this.$route.params.stock_id);
+
                 this.$axios.get("/api1/stocks/" + this.ioForm.id).then((res) => {
                     // console.log(res);
                     this.ioForm.name = res.data.data.name;
-                    this.ioForm.unit_name = res.data.data.unitId;
-                    this.ioForm.stock_num = res.data.data.stockNum;
+                    this.ioForm.unitName = res.data.data.unitId;
+                    this.ioForm.stockNum = res.data.data.stockNum;
+                    // this.ioForm.inOutNo = res.data.data;
                 })
             }
         },
         onSubmit(formName) {
-            if (this.ioForm.io_type != null) {
+            if (this.ioForm.ioType != null) {
                 this.ioForm.create_user_id = this.employee_info.employee_id;
                 this.ioForm.update_user_id = this.employee_info.employee_id;
 
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        console.log(this.ioForm)
+                        this.$axios.get("/api1/stocks/io/" + this.ioForm.id).then((res) => {
+                            if (res.data) {
+                                console.log(res);
+                                // this.ioForm.inOutNo = 
+                            }
+                        })
+                        this.ioForm.inOutNo += 1;
                         this.$axios.post("/api1/stocks/io/add", this.ioForm).then((res) => {
                             if (res.data) {
                                 this.$message.success("登録完了しました");
                                 this.$router.push({
-                                    name: 'home',
+                                    name: 'ioinfo',
+                                    params: { stock_id: this.ioForm.id, name: this.ioForm.name, io_num: this.ioForm.stockNum, unit_id: this.ioForm.unitId },
                                 })
                             } else {
                                 this.$message.error("エラー、登録できません");
@@ -152,13 +161,11 @@ export default {
         handleBack() {
             this.$router.push({
                 name: 'ioinfo',
+                params: { stock_id: this.ioForm.id, name: this.ioForm.name, io_num: this.ioForm.stockNum, unit_id: this.ioForm.unitId }
             })
         },
         resetform() {
             this.form = {}
-        },
-        blurChange() {
-            console.log(this.ioForm.io_type);
         },
     },
     computed: {},

@@ -171,11 +171,12 @@ export default {
     },
     methods: {
         async getIOData() {
-            this.stockItem.id = this.$route.params.stock_id;
-            //console.log(this.$route.params);
+            //this.stockItem.id = this.$route.params.stock_id;
+            this.$store.dispatch('saveStockId', this.$route.params.stock_id);
+            console.log(this.$route.params);
             this.stockItem.name = this.$route.params.name;
             this.stockItem.num = this.$route.params.io_num;
-            await this.$axios.get("/api1/stocks/io/" + this.stockItem.id + "/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
+            await this.$axios.get("/api1/stocks/io/" + this.$store.state.stock_id + "/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
                 this.pagination.pageSize = res.data.data.size;
                 this.pagination.currentPage = res.data.data.current;
                 this.pagination.total = res.data.data.total;
@@ -189,19 +190,19 @@ export default {
             })
         },
         searchIOInfo() {
-            let params = {
-                date: this.searchForm.date,
-                type: this.searchForm.stockType
-            }
+            // let params = {
+            //     date: this.searchForm.date,
+            //     type: this.searchForm.stockType
+            // }
 
             let param = "?date=" + this.searchForm.date;
             param += "&type=" + this.searchForm.stockType;
-            console.log(params)
+            //console.log(params)
             if (this.searchForm.date == '' && this.searchForm.stockType == '') {
                 return;
             }
             if (this.searchForm.date !== null) {
-                this.$axios.get("/api1/stocks/io/" + this.stockItem.id + "/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + param).then((res) => {
+                this.$axios.get("/api1/stocks/io/" + this.$store.state.stock_id + "/search/" + this.pagination.currentPage + "/" + this.pagination.pageSize + param).then((res) => {
                     this.pagination.pageSize = res.data.data.size;
                     this.pagination.currentPage = res.data.data.current;
                     this.pagination.total = res.data.data.total;
@@ -220,7 +221,7 @@ export default {
             this.$router.push({
                 name: 'addio',
                 params: {
-                    stock_id: this.stockItem.id
+                    stock_id: this.$store.state.stock_id
                 }
             })
         },

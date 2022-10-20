@@ -172,8 +172,8 @@ export default {
     getUnit() {
       if (this.$store.state.unit_name == '') {
         //console.log("null");
-        this.$axios.get("/api1/units").then((res) => {
-          this.$store.dispatch('getNames', res.data.data.map((item, index) => { return Object.assign({}, { unit_id: item.unitId, name: item.name }) }));
+        this.$axios.get("/api1/units").then(async (res) => {
+          await this.$store.dispatch('getNames', res.data.data.map((item, index) => { return Object.assign({}, { unit_id: item.unitId, name: item.name }) }));
           // console.log(this.$store.state.unit_name)
         }).catch(err => console.log(err));
       } else {
