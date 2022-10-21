@@ -161,6 +161,7 @@ export default {
     mounted() {
         this.getStockType();
         this.getIOData();
+        console.log(this.$store.state)
     },
     methods: {
         getIOData() {

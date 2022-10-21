@@ -134,6 +134,13 @@ export default {
 
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
+                        this.$axios.get("/api1/stocks/io/" + this.ioForm.id).then((res) => {
+                            if (res.data) {
+                                console.log(res);
+                                // this.ioForm.inOutNo = 
+                            }
+                        })
+                        this.ioForm.inOutNo += 1;
                         this.$axios.post("/api1/stocks/io/add", this.ioForm).then((res) => {
                             if (res.data) {
                                 this.$message.success("登録完了しました");
