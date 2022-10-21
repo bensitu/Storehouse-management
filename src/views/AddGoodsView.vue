@@ -99,25 +99,20 @@ export default {
   mounted() {
     this.getUnit();
     this.checkIfItemNeedsUpdate();
-
   },
   methods: {
     getUnit() {
-      this.$axios.get("/api1/units").then((res) => {
-        this.unitOptions = res.data.data.map((item, index) => { return Object.assign({}, { unit_id: item.unitId, name: item.name }) })
-        console.log(JSON.stringify(this.unitOptions));
-      }).catch(err => console.log(err));
+      this.$store.dispatch('getUnitNames');
+      this.unitOptions = this.$store.state.unitNameList;
     },
     checkIfItemNeedsUpdate() {
       if (this.$route.params.id != null) {
         const recordId = this.$route.params.id;
         this.$axios.get("/api1/stocks/" + recordId).then((res) => {
           this.goodsForm = res.data.data;
-          console.log(this.goodsForm.unitId);
           let tmp = this.unitOptions.find((item) => {
             return item.unit_id == this.goodsForm.unitId
           })
-          console.log(tmp);
           this.unitOptions.unit_name = tmp.unit_name;
         }).catch(err => console.log(err));
       }

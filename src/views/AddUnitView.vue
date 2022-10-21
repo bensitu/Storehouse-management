@@ -95,9 +95,9 @@ export default {
         this.getUnit();
     },
     methods: {
-        async getUnit() {
-            await this.$axios.get("/api1/units").then((res) => {
-                this.fetchUnitOptions = res.data.data.map(item => item.name);
+        getUnit() {
+            this.$store.dispatch('getUnitNames').then((res) => {
+                this.fetchUnitOptions = this.$store.state.unitNameList.map(item => item.name);
             }).catch(err => console.log(err));
         },
         checkExistingUnit(value) {
@@ -121,7 +121,6 @@ export default {
                         this.unitForm.create_user_id = this.employee_info.employee_id;
                         this.unitForm.update_user_id = this.employee_info.employee_id;
                         this.$axios.post("/api1/units/add", this.unitForm).then((res) => {
-                            console.log(res.data);
                             if (res.data) {
                                 this.$message.success("登録完了しました");
                                 this.$router.push({
@@ -176,7 +175,6 @@ export default {
     min-height: 100vh;
     width: 100%;
     background-size: cover;
-    background-position: fixed;
 }
 
 .container-shadow {

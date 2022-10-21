@@ -76,7 +76,7 @@ export default {
                 // name: '',
                 // unitName: '',
                 // stockNum: '',
-                inOutNo: null,
+                inOutNo: 0,
                 ioType: null,
                 ioNum: null,
                 remarks: '',
@@ -109,21 +109,22 @@ export default {
         async getStockType() {
             await this.$axios.get("/api1/codes").then((res) => {
                 this.ioTypeOptions = res.data.data.map((item, index) => { return Object.assign({}, { 'unitId': item.codeId, 'name': item.name }) })
-                console.log(this.ioTypeOptions);
             })
         },
         getIODetails() {
             this.ioForm.id = this.$route.params.stock_id;
 
             if (this.ioForm.id != null) {
-
                 this.$axios.get("/api1/stocks/" + this.ioForm.id).then((res) => {
-                    // console.log(res);
                     this.ioForm.name = res.data.data.name;
                     this.ioForm.unitName = res.data.data.unitId;
                     this.ioForm.stockNum = res.data.data.stockNum;
-                    // this.ioForm.inOutNo = res.data.data;
-                })
+                }).catch(err => console.log(err));
+                this.$axios.get("/api1/stocks/io/" + this.ioForm.id).then((res) => {
+                    if (res.data) {
+                        this.ioForm.inOutNo = res.data.data.inOutNo + 1;
+                    }
+                }).catch(err => console.log(err));
             }
         },
         onSubmit(formName) {
@@ -133,13 +134,6 @@ export default {
 
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        this.$axios.get("/api1/stocks/io/" + this.ioForm.id).then((res) => {
-                            if (res.data) {
-                                console.log(res);
-                                // this.ioForm.inOutNo = 
-                            }
-                        })
-                        this.ioForm.inOutNo += 1;
                         this.$axios.post("/api1/stocks/io/add", this.ioForm).then((res) => {
                             if (res.data) {
                                 this.$message.success("登録完了しました");
