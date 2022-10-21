@@ -99,14 +99,11 @@ export default {
   mounted() {
     this.getUnit();
     this.checkIfItemNeedsUpdate();
-
   },
   methods: {
     getUnit() {
-      this.$axios.get("/api1/units").then((res) => {
-        this.unitOptions = res.data.data.map((item, index) => { return Object.assign({}, { unit_id: item.unitId, name: item.name }) })
-        console.log(JSON.stringify(this.unitOptions));
-      }).catch(err => console.log(err));
+      this.$store.dispatch('getUnitNames');
+      this.unitOptions = this.$store.state.unitNameList;
     },
     checkIfItemNeedsUpdate() {
       if (this.$route.params.id != null) {

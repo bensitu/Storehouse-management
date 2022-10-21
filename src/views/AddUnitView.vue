@@ -95,9 +95,9 @@ export default {
         this.getUnit();
     },
     methods: {
-        async getUnit() {
-            await this.$axios.get("/api1/units").then((res) => {
-                this.fetchUnitOptions = res.data.data.map(item => item.name);
+        getUnit() {
+            this.$store.dispatch('getUnitNames').then((res) => {
+                this.fetchUnitOptions = this.$store.state.unitNameList.map(item => item.name);
             }).catch(err => console.log(err));
         },
         checkExistingUnit(value) {

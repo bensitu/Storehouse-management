@@ -76,7 +76,7 @@ export default {
                 // name: '',
                 // unitName: '',
                 // stockNum: '',
-                inOutNo: null,
+                inOutNo: 0,
                 ioType: null,
                 ioNum: null,
                 remarks: '',
@@ -136,7 +136,7 @@ export default {
                         this.$axios.get("/api1/stocks/io/" + this.ioForm.id).then((res) => {
                             if (res.data) {
                                 console.log(res);
-                                // this.ioForm.inOutNo = 
+                                // this.ioForm.inOutNo = res.data.data
                             }
                         })
                         this.ioForm.inOutNo += 1;

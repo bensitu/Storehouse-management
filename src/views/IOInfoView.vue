@@ -20,7 +20,8 @@
                             <div class="mb-20">
                                 <el-descriptions style="font-size: 16px;" :column="3">
                                     <el-descriptions-item label="在庫名称">{{stockItem.name}}</el-descriptions-item>
-                                    <el-descriptions-item label="単位">{{stockItem.unit}}</el-descriptions-item>
+                                    <el-descriptions-item label="単位">{{convertUnitName(stockItem.unit)}}
+                                    </el-descriptions-item>
                                     <el-descriptions-item label="在庫数量">{{stockItem.num}}</el-descriptions-item>
                                 </el-descriptions>
                                 <!-- <div class="mb-20">
@@ -43,7 +44,7 @@
                                     <div>
                                         <el-date-picker class="mb-10 mr-15" v-model="searchForm.date" type="daterange"
                                             align="right" unlink-panels range-separator="〜" start-placeholder="開始日"
-                                            end-placeholder="終了日" :picker-options="pickerOptions" @blur="showInfo()">
+                                            end-placeholder="終了日" :picker-options="pickerOptions">
                                         </el-date-picker>
                                         <el-select class="mb-10 mr-15" v-model="searchForm.stockType" clearable
                                             placeholder="入出庫タイプ選択">
@@ -68,10 +69,15 @@
                                 :default-sort="{prop: 'id', order: 'ascending'}">
                                 <el-table-column prop="record_id" align="center" label="記録番号">
                                     <template v-slot="recordIdScope">
-                                        {{ recordIdScope.row.id | getRecordId }}
+                                        {{recordIdScope.row.id+""+recordIdScope.row.inOutNo}}
                                     </template>
                                 </el-table-column>
-                                <el-table-column prop="ioType" align="center" label="入出庫タイプ"></el-table-column>
+                                <el-table-column prop="inOutNo" align="center" label="入出庫回数" v-if="false">
+                                </el-table-column>
+                                <el-table-column prop="ioType" align="center" label="入出庫タイプ"><template
+                                        v-slot="ioTypeScope">{{convertTypeName(ioTypeScope.row.ioType)}}</template>
+                                </el-table-column>
+
                                 <el-table-column prop="ioNum" align="center" label="入出庫数量"></el-table-column>
                                 <el-table-column prop="updateDate" align="center" label="入出庫日時"><template
                                         v-slot="updateDateScope">
@@ -160,7 +166,6 @@ export default {
                 currentPage: 1,
                 pageSize: 10,
                 total: 0,
-                search_date: ''
             },
             that: this,
         }
@@ -168,26 +173,24 @@ export default {
     mounted() {
         this.getStockType();
         this.getIOData();
+        console.log(this.$store.state)
     },
     methods: {
-        async getIOData() {
-            //this.stockItem.id = this.$route.params.stock_id;
-            this.$store.dispatch('saveStockId', this.$route.params.stock_id);
-            console.log(this.$route.params);
+        getIOData() {
+            this.$store.dispatch("getIOData").then((res) => {
+                this.pagination.pageSize = this.$store.state.size;
+                this.pagination.currentPage = this.$store.state.current;
+                this.pagination.total = this.$store.state.total;
+                this.ioTableDataList = this.$store.state.ioRecords;
+            }).catch(err => console.log(err));
             this.stockItem.name = this.$route.params.name;
             this.stockItem.num = this.$route.params.io_num;
-            await this.$axios.get("/api1/stocks/io/" + this.$store.state.stock_id + "/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
-                this.pagination.pageSize = res.data.data.size;
-                this.pagination.currentPage = res.data.data.current;
-                this.pagination.total = res.data.data.total;
-                this.ioTableDataList = res.data.data.records;
-
-            }).catch(err => console.log(err));
+            this.stockItem.unit = this.$route.params.unit_id;
         },
-        async getStockType() {
-            await this.$axios.get("/api1/codes").then((res) => {
-                this.ioTypeOptions = res.data.data.map((item, index) => { return Object.assign({}, { 'unit_id': item.codeId, 'name': item.name }) })
-            })
+        getStockType() {
+            this.$store.dispatch("getStockType").then((res) => {
+                this.ioTypeOptions = this.$store.state.codeNameList;
+            }).catch(err => console.log(err));
         },
         searchIOInfo() {
             // let params = {
@@ -197,7 +200,7 @@ export default {
 
             let param = "?date=" + this.searchForm.date;
             param += "&type=" + this.searchForm.stockType;
-            //console.log(params)
+
             if (this.searchForm.date == '' && this.searchForm.stockType == '') {
                 return;
             }
@@ -221,7 +224,7 @@ export default {
             this.$router.push({
                 name: 'addio',
                 params: {
-                    stock_id: this.$store.state.stock_id
+                    stock_id: this.$store.state.stock_id,
                 }
             })
         },
@@ -230,41 +233,34 @@ export default {
                 name: 'home',
             })
         },
-        getSummaries(param) {
-            const { columns, data } = param;
-            const sums = [];
-            columns.forEach((column, index) => {
-                if (index === 0) {
-                    sums[index] = '合計';
-                    return;
-                }
-                if (index === 1 || index === 3 || index === 4 || index === 5) {
-                    sums[index] = '';
-                    return;
-                }
-                const values = data.map(item => Number(item[column.property]));
-                if (!values.every(value => isNaN(value))) {
-                    sums[index] = values.reduce((prev, curr) => {
-                        const value = Number(curr);
-                        if (!isNaN(value)) {
-                            return prev + curr;
-                        } else {
-                            return prev;
-                        }
-                    }, 0);
-                    sums[index] += '';
+        convertUnitName(value) {
+            const nameList = this.$store.state.unitNameList;
+            if (nameList !== '' && nameList !== undefined && nameList !== null) {
+                const unitName = nameList.find((item) => { return item.unit_id === value });
+                if (unitName != undefined) {
+                    return unitName.name;
                 } else {
-                    sums[index] = '';
+                    return value;
                 }
-            });
-            return sums;
+            } else {
+                return value;
+            }
         },
-        showInfo() {
-            console.log()
-        }
+        convertTypeName(value) {
+            const typeList = this.$store.state.codeNameList;
+            if (typeList !== '' && typeList !== undefined && typeList !== null) {
+                const codeName = typeList.find((item) => { return item.codeId === value });
+                if (codeName != undefined) {
+                    return codeName.name;
+                } else {
+                    return value;
+                }
+            } else {
+                return value;
+            }
+        },
     },
     computed: {
-
 
     },
     filters: {
@@ -278,13 +274,6 @@ export default {
                 let m = (date.getMinutes() < 10 ? '0' + (date.getMinutes()) : date.getMinutes()) + ':';
                 let s = (date.getSeconds() < 10 ? '0' + (date.getSeconds()) : date.getSeconds());
                 return (Y + M + D + h + m + s);
-            }
-        },
-        getRecordId(value) {
-            // console.log(this.ioTableDataList);
-            if (value != null) {
-
-                return value + "";
             }
         },
     },

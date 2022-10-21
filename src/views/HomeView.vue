@@ -55,8 +55,7 @@
                 <el-table-column prop="id" align="center" label="在庫ID" sortable></el-table-column>
                 <el-table-column prop="name" align="center" label="在庫名称" sortable></el-table-column>
                 <el-table-column prop="unitId" align="center" label="単位" sortable><template v-slot="unitIdScope">
-                    {{ unitIdScope.row.unitId | convertUnitName }}
-
+                    {{convertUnitName(unitIdScope.row.unitId)}}
                   </template></el-table-column>
                 <el-table-column prop="stockNum" align="center" label="在庫数量" sortable></el-table-column>
                 <el-table-column prop="updateUser" align="center" label="更新者"></el-table-column>
@@ -152,6 +151,7 @@ export default {
         pageSize: 10,
         total: 0,
       },
+      etchUnitOptions: [],
       that: this,
     }
   },
@@ -160,27 +160,18 @@ export default {
     this.getUnit();
   },
   methods: {
-    async getStockData() {
-      await this.$axios.get("/api1/stocks/" + this.pagination.currentPage + "/" + this.pagination.pageSize).then((res) => {
-        this.pagination.pageSize = res.data.data.size;
-        this.pagination.currentPage = res.data.data.current;
-        this.pagination.total = res.data.data.total;
-        this.stockTableDataList = res.data.data.records;
-        //console.log(this.stockTableDataList);
-      })
+    getStockData() {
+      this.$store.dispatch('getStockInfo').then((res) => {
+        this.pagination.pageSize = this.$store.state.size;
+        this.pagination.currentPage = this.$store.state.current;
+        this.pagination.total = this.$store.state.total;
+        this.stockTableDataList = this.$store.state.stockRecords;
+      }).catch(err => console.log(err));
     },
     getUnit() {
-      if (this.$store.state.unit_name == '') {
-        //console.log("null");
-        this.$axios.get("/api1/units").then(async (res) => {
-          await this.$store.dispatch('getNames', res.data.data.map((item, index) => { return Object.assign({}, { unit_id: item.unitId, name: item.name }) }));
-          // console.log(this.$store.state.unit_name)
-        }).catch(err => console.log(err));
-      } else {
-        //console.log("not null");
-        return;
-      }
-
+      this.$store.dispatch('getUnitNames').then((res) => {
+        this.fetchUnitOptions = this.$store.state.unitNameList.map(item => item.name);
+      }).catch(err => console.log(err));
     },
     searchStockInfo() {
       let date = "date=" + this.searchForm.date;
@@ -232,7 +223,6 @@ export default {
           message: 'キャンセルしました'
         });
       })
-
     },
     handleDeleteAll([]) {
       this.$confirm("削除は確認しましたか", "確認メッセージ", { type: "warning", confirmButtonText: '確認', cancelButtonText: 'キャンセル', center: true }).then(() => {
@@ -253,6 +243,7 @@ export default {
       })
     },
     handleAddIO(index, row) {
+      this.$store.dispatch('saveStockId', row.id);
       this.$router.push({
         name: 'ioinfo',
         params: { stock_id: row.id, name: row.name, io_num: row.stockNum, unit_id: row.unitId }
@@ -263,13 +254,22 @@ export default {
         name: 'login',
       })
     },
-
+    convertUnitName(value) {
+      const nameList = this.$store.state.unitNameList;
+      if (nameList != '' && nameList != undefined && nameList != null) {
+        const unitName = nameList.find((item) => { return item.unit_id === value });
+        if (unitName != undefined) {
+          return unitName.name;
+        } else {
+          return value;
+        }
+      } else {
+        return value;
+      }
+    },
   },
   computed: {
-    convertUnitName1: function () {
-      //console.log(this.$store.state.unit_name);
 
-    }
   },
   filters: {
     convertDate(value) {
@@ -284,12 +284,6 @@ export default {
         return (Y + M + D + h + m + s);
       }
     },
-    convertUnitName(value, that) {
-      if (value != null) {
-
-        return value
-      }
-    }
   },
 }
 </script>
